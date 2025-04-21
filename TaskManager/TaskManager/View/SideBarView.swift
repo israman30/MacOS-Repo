@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SideBarView: View {
     let userCreatorGroup: [TaskGroup]
-    @State private var selectedSection: TaskSection = .all
+    @Binding var selectedSection: TaskSection
     var body: some View {
         List(selection: $selectedSection) {
             Section {
@@ -33,6 +33,6 @@ struct SideBarView: View {
 }
 
 #Preview {
-    SideBarView(userCreatorGroup: TaskGroup.exampples())
+    SideBarView(userCreatorGroup: TaskGroup.exampples(), selectedSection: .constant(.all))
         .listStyle(.sidebar)
 }
