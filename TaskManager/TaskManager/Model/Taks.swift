@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Task: Identifiable {
+struct Task: Identifiable, Hashable {
     var id = UUID()
     var title: String
     var isCompleted: Bool
@@ -30,7 +30,7 @@ struct Task: Identifiable {
     }
 }
 
-struct TaskGroup: Identifiable {
+struct TaskGroup: Identifiable, Hashable {
     var id = UUID()
     var title: String
     var creatingDate: Date
@@ -58,7 +58,7 @@ struct TaskGroup: Identifiable {
     }
 }
 
-enum TaskSection: Identifiable {
+enum TaskSection: Identifiable, CaseIterable, Hashable {
     case all
     case done
     case upcoming
@@ -76,4 +76,40 @@ enum TaskSection: Identifiable {
             taskGroup.id.uuidString
         }
     }
+    
+    var displayName: String {
+        switch self {
+        case .all:
+            "All"
+        case .done:
+            "Done"
+        case .upcoming:
+            "Upcoming"
+        case .list(let taskGroup):
+            taskGroup.title
+        }
+    }
+    
+    var iconName: String {
+        switch self {
+        case .all:
+            "star"
+        case .done:
+            "checkmark.circle"
+        case .upcoming:
+            "calendar"
+        case .list:
+            "folder"
+        }
+    }
+    
+    static var allCases: [TaskSection] {
+        [.all, .done, .upcoming]
+    }
+    
+    static func == (lhs: TaskSection, rhs: TaskSection) -> Bool {
+        lhs.id == rhs.id
+    }
+    
 }
+
