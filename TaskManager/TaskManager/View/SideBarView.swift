@@ -8,11 +8,29 @@
 import SwiftUI
 
 struct SideBarView: View {
+    let userCreatorGroup: [TaskGroup]
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        List {
+            Section {
+                ForEach(TaskSection.allCases) { selection in
+                    Label(selection.displayName, systemImage: selection.iconName)
+                }
+            } header: {
+                Text("Favorites")
+            }
+            
+            Section {
+                ForEach(userCreatorGroup) { group in
+                    Label(group.title, systemImage: "folder")
+                }
+            } header: {
+                Text("My goups")
+            }
+        }
     }
 }
 
 #Preview {
-    SideBarView()
+    SideBarView(userCreatorGroup: TaskGroup.exampples())
+        .listStyle(.sidebar)
 }
