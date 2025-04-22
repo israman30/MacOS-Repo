@@ -10,16 +10,28 @@ import SwiftUI
 struct TaskListView: View {
     let title: String
     @Binding var tasks: [Task]
+    @State private var isPresentedInspector: Bool = false
     var body: some View {
         List($tasks) { $task in
             TaskView(task: $task)
         }
         .toolbar {
-            Button {
-                
-            } label: {
-                Label("Add new task", systemImage: "plus")
+            ToolbarItemGroup {
+                Button {
+                    tasks.append(Task(title: "New Task"))
+                } label: {
+                    Label("Add new task", systemImage: "plus")
+                }
+                Button {
+                    isPresentedInspector.toggle()
+                } label: {
+                    Label("Show Inspector", systemImage: "sidebar.right")
+                }
             }
+            
+        }
+        .inspector(isPresented: $isPresentedInspector) {
+            
         }
     }
 }

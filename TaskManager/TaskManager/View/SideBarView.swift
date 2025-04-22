@@ -29,9 +29,11 @@ struct SideBarView: View {
                     }
                     .tag(TaskSection.list(group))
                     .contextMenu {
-                        Text("one")
-                        Text("two")
-                        Text("three")
+                        Button("Delete") {
+                            if let index = userCreatorGroup.firstIndex(where: { $0.id == group.id }) {
+                                userCreatorGroup.remove(at: index)
+                            }
+                        }
                     }
                 }
             } header: {
