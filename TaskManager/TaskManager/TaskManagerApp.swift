@@ -13,5 +13,18 @@ struct TaskManagerApp: App {
         WindowGroup {
             ContentView()
         }
+        .commands {
+            CommandMenu("Task") {
+                Button("Add new task") {
+                    
+                }
+            }
+            
+            CommandGroup(after: .newItem) {
+                Button("Add new group") {
+                    
+                }
+            }
+        }
     }
 }
