@@ -11,6 +11,7 @@ struct ContentView: View {
     @State private var userCreatroGroup: [TaskGroup] = TaskGroup.exampples()
     @State private var selection: TaskSection = .all
     @State private var allTasks = Task.exampples
+    @State private var searchText: String = ""
     var body: some View {
         NavigationSplitView {
             SideBarView(
@@ -30,7 +31,7 @@ struct ContentView: View {
             }
             
         }
-
+        .searchable(text: $searchText)
     }
 }
 
