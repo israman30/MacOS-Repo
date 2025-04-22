@@ -29,6 +29,15 @@ struct SideBarView: View {
                 Text("My goups")
             }
         }
+        .safeAreaInset(edge: .bottom) {
+            Button {
+                
+            } label: {
+                Label("Add group", systemImage: "plus")
+            }
+            .buttonStyle(.borderless)
+            .foregroundStyle(Color.accentColor)
+        }
     }
 }
 
