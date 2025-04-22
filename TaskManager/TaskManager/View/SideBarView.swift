@@ -43,6 +43,7 @@ struct SideBarView: View {
             .foregroundStyle(Color.accentColor)
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
+            .keyboardShortcut(KeyEquivalent("a"), modifiers: .command)
         }
     }
 }
