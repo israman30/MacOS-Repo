@@ -11,11 +11,8 @@ struct TaskListView: View {
     let title: String
     @Binding var tasks: [Task]
     var body: some View {
-        List(tasks) { task in
-            HStack {
-                Image(systemName: task.isCompleted ? "checkmark.circle" : "circle")
-                Text(task.title)
-            }
+        List($tasks) { $task in
+            TaskView(task: $task)
         }
         .toolbar {
             Button {

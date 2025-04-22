@@ -20,7 +20,7 @@ struct ContentView: View {
         } detail: {
             switch selection {
             case .all:
-                StaticTaskListView(title: "All", tasks: allTasks)
+                TaskListView(title: "All", tasks: $allTasks)
             case .done:
                 StaticTaskListView(title: "Done", tasks: allTasks.filter { $0.isCompleted })
             case .upcoming:
