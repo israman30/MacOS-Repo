@@ -27,6 +27,12 @@ struct SideBarView: View {
                         Image(systemName: "folder")
                         TextField("New Group", text: $group.title)
                     }
+                    .tag(TaskSection.list(group))
+                    .contextMenu {
+                        Text("one")
+                        Text("two")
+                        Text("three")
+                    }
                 }
             } header: {
                 Text("My goups")
