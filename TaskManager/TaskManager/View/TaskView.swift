@@ -9,6 +9,8 @@ import SwiftUI
 
 struct TaskView: View {
     @Binding var task: Task
+    @Binding var selectedTask: Task?
+    @Binding var isPresentedInspector: Bool
     var body: some View {
         HStack {
             Image(systemName: task.isCompleted ? "checkmark.circle" : "circle")
@@ -17,11 +19,18 @@ struct TaskView: View {
                 }
             TextField("New Task", text: $task.title)
                 .textFieldStyle(.plain)
+            
+            Button {
+                isPresentedInspector = true
+                selectedTask = task
+            } label: {
+                Text("More")
+            }
         }
     }
 }
 
 #Preview {
-    TaskView(task: .constant(Task.example))
+    TaskView(task: .constant(Task.example), selectedTask: .constant(nil), isPresentedInspector: .constant(false))
         .padding()
 }
