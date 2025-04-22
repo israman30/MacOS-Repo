@@ -13,7 +13,10 @@ struct ContentView: View {
     @State private var allTasks = Task.exampples
     var body: some View {
         NavigationSplitView {
-            SideBarView(userCreatorGroup: userCreatroGroup, selectedSection: $selection)
+            SideBarView(
+                userCreatorGroup: $userCreatroGroup,
+                selectedSection: $selection
+            )
         } detail: {
             switch selection {
             case .all:

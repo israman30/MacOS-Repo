@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SideBarView: View {
-    let userCreatorGroup: [TaskGroup]
+    @Binding var userCreatorGroup: [TaskGroup]
     @Binding var selectedSection: TaskSection
     var body: some View {
         List(selection: $selectedSection) {
@@ -31,17 +31,22 @@ struct SideBarView: View {
         }
         .safeAreaInset(edge: .bottom) {
             Button {
-                
+                let newGroup = TaskGroup(title: "New Group")
+                userCreatorGroup.append(newGroup)
             } label: {
                 Label("Add group", systemImage: "plus")
             }
             .buttonStyle(.borderless)
             .foregroundStyle(Color.accentColor)
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
 
 #Preview {
-    SideBarView(userCreatorGroup: TaskGroup.exampples(), selectedSection: .constant(.all))
-        .listStyle(.sidebar)
+    SideBarView(
+        userCreatorGroup: .constant(TaskGroup.exampples()),
+        selectedSection: .constant(.all)
+    ).listStyle(.sidebar)
 }
