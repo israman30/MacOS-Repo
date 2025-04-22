@@ -19,15 +19,19 @@ struct ContentView: View {
                 selectedSection: $selection
             )
         } detail: {
-            switch selection {
-            case .all:
-                TaskListView(title: "All", tasks: $allTasks)
-            case .done:
-                StaticTaskListView(title: "Done", tasks: allTasks.filter { $0.isCompleted })
-            case .upcoming:
-                StaticTaskListView(title: "All", tasks: allTasks)
-            case .list(let taskGroup):
-                StaticTaskListView(title: taskGroup.title, tasks: taskGroup.tasks)
+            if searchText.isEmpty {
+                switch selection {
+                case .all:
+                    TaskListView(title: "All", tasks: $allTasks)
+                case .done:
+                    StaticTaskListView(title: "All", tasks: allTasks.filter { $0.isCompleted })
+                case .upcoming:
+                    StaticTaskListView(title: "All", tasks: allTasks)
+                case .list(let taskGroup):
+                    StaticTaskListView(title: taskGroup.title, tasks: taskGroup.tasks)
+                }
+            } else {
+                StaticTaskListView(title: "All", tasks: allTasks.filter { $0.title.contains(searchText) })
             }
             
         }

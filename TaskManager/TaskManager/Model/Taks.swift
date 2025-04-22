@@ -26,7 +26,13 @@ struct Task: Identifiable, Hashable {
     }
     
     static var exampples: [Task] {
-        [example, example, example]
+        [
+            Task(title: "Buy milk", isCompleted: false, dueDate: Date().addingTimeInterval(60 * 60 * 24)),
+            Task(title: "Go to school", isCompleted: false, dueDate: Date().addingTimeInterval(60 * 60 * 24)),
+            Task(title: "Clean the house", isCompleted: false, dueDate: Date().addingTimeInterval(60 * 60 * 24)),
+            Task(title: "Go to get that", isCompleted: false, dueDate: Date().addingTimeInterval(60 * 60 * 24)),
+            Task(title: "Gum time", isCompleted: false, dueDate: Date().addingTimeInterval(60 * 60 * 24))
+        ]
     }
 }
 
