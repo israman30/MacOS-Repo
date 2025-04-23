@@ -20,6 +20,7 @@ struct TaskListView: View {
                 isPresentedInspector: $isPresentedInspector
             )
         }
+        .navigationTitle(title)
         .toolbar {
             ToolbarItemGroup {
                 Button {

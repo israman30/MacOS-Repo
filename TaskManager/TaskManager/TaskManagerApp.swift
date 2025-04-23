@@ -26,5 +26,19 @@ struct TaskManagerApp: App {
                 }
             }
         }
+        WindowGroup("Special Window") {
+            Text("Special window content")
+                .frame(minWidth: 200, idealWidth: 300, minHeight: 200)
+        }
+        .windowStyle(.automatic)
+        
+        Settings {
+            Text("Settings")
+        }
+        
+        MenuBarExtra("Menu") {
+            Button("Do something") { }
+        }
+        
     }
 }
