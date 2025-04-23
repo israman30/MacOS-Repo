@@ -8,10 +8,29 @@
 import Foundation
 
 struct DiskData {
-    let fileSystemURL: String
+    let fileSystemName: String
     let size: Int64
     let used: Int64
     let available: Int64
     let capcity: Int
     let mountPoint: String
+    
+    var isSystemVolume: Bool {
+        mountPoint == "/"
+    }
+    
+    var isDataVolume: Bool {
+        fileSystemName == "/System/Volumes/Data"
+    }
+}
+
+// MARK: - Data Analysis extension
+extension Array where Element == DiskData {
+    var systemVolume: DiskData? {
+        first(where: \.isSystemVolume)
+    }
+    
+    var dataVolume: DiskData? {
+        first(where: \.isDataVolume)
+    }
 }
