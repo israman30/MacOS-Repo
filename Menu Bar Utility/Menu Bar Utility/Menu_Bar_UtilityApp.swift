@@ -10,8 +10,11 @@ import SwiftUI
 @main
 struct Menu_Bar_UtilityApp: App {
     var body: some Scene {
-        WindowGroup {
+        MenuBarExtra {
             ContentView()
+        } label: {
+            Label("Disk Anylizer", image: "externaldrive.connected.to.line.below.fill")
         }
+        .menuBarExtraStyle(.window)
     }
 }
