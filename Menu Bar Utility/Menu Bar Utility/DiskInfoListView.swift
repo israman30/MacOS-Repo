@@ -10,12 +10,16 @@ import SwiftUI
 struct DiskInfoListView: View {
     var diskInfo: [FormattedDiskData]
     var body: some View {
-        List(diskInfo) { info in
-            DiskInfoRow(info: info)
+        List {
+            ForEach(diskInfo) { info in
+                DiskInfoRow(info: info)
+            }
+            .listRowSeparator(.hidden)
         }
     }
 }
 
 #Preview {
-    DiskInfoListView(diskInfo: [.exmaple])
+    DiskInfoListView(diskInfo: [.example])
+        .frame(width: 300, height: 400)
 }

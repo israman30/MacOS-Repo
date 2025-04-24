@@ -111,8 +111,9 @@ struct ContentView: View {
     @StateObject var fetcher = DiscInformationFetch()
     
     var body: some View {
-        VStack {
-            Text("Fetcher: \(fetcher.diskInformation.count)")
+        VStack(alignment: .leading) {
+            Text("Disk Analyser")
+                .font(.title2)
             
             DiskInfoListView(diskInfo: fetcher.diskInformation)
 //            Button("Fetch") {
@@ -137,4 +138,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .frame(width: 500)
 }

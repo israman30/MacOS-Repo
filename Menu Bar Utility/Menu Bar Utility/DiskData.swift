@@ -21,7 +21,11 @@ struct FormattedDiskData: Identifiable {
         ByteCountFormatter.string(fromByteCount: totalsize * 1024, countStyle: .file)
     }
     
-    static var exmaple: FormattedDiskData {
+    var percentage: Double {
+        Double(size) / Double(totalsize)
+    }
+    
+    static var example: FormattedDiskData {
         .init(title: "System", size: 11 * 1024, totalsize: 910 * 1024)
     }
 }
