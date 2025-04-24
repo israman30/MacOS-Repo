@@ -70,7 +70,7 @@ class DiscInformationFetch: ObservableObject {
         let dataLines = lines.dropFirst()
         
         return dataLines.compactMap { line -> DiskData? in
-            let components = line.split(separator: "  ", omittingEmptySubsequences: true)
+            let components = line.split(separator: " ", omittingEmptySubsequences: true)
             guard components.count >= 5 else { return nil }
             
             return DiskData(
@@ -87,12 +87,11 @@ class DiscInformationFetch: ObservableObject {
     func parseCapacity(_ info: [DiskData]) -> [FormattedDiskData] {
         var results = [FormattedDiskData]()
         let total = info.systemVolume?.size ?? 0
-        
+        debugPrint("-->", total)
         let system = info.systemVolume?.used ?? 0
         results.append(
             FormattedDiskData(title: "System", size: system, totalsize: total)
         )
-        
         
         let available = info.systemVolume?.available ?? 0
         results.append(
@@ -114,10 +113,12 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Text("Fetcher: \(fetcher.diskInformation.count)")
-            Button("Fetch") {
-                let output = try? fetcher.execute(with: "df -k")
-                print(output ?? "none")
-            }
+            
+            DiskInfoListView(diskInfo: fetcher.diskInformation)
+//            Button("Fetch") {
+//                let output = try? fetcher.execute(with: "df -k")
+//                print(output ?? "none")
+//            }
         }
         .padding()
         .task {

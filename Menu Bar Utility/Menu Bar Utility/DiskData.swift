@@ -12,6 +12,18 @@ struct FormattedDiskData: Identifiable {
     let title: String
     let size: Int64
     let totalsize: Int64
+    
+    var formattedSize: String {
+        ByteCountFormatter.string(fromByteCount: size * 1024, countStyle: .file)
+    }
+    
+    var formattedTotalSize: String {
+        ByteCountFormatter.string(fromByteCount: totalsize * 1024, countStyle: .file)
+    }
+    
+    static var exmaple: FormattedDiskData {
+        .init(title: "System", size: 11 * 1024, totalsize: 910 * 1024)
+    }
 }
 
 struct DiskData {
