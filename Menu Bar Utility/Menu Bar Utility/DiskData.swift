@@ -28,6 +28,14 @@ struct FormattedDiskData: Identifiable {
     static var example: FormattedDiskData {
         .init(title: "System", size: 11 * 1024, totalsize: 910 * 1024)
     }
+    
+    static var examples: [FormattedDiskData] {
+        [
+            .init(title: "System", size: 11 * 1024, totalsize: 910 * 1024),
+            .init(title: "Available", size: 300 * 1024, totalsize: 910 * 1024),
+            .init(title: "User Data", size: 600 * 1024, totalsize: 910 * 1024)
+        ]
+    }
 }
 
 struct DiskData {

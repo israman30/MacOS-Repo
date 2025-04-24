@@ -116,6 +116,7 @@ struct ContentView: View {
                 .font(.title2)
             
             DiskInfoListView(diskInfo: fetcher.diskInformation)
+            DiskDataChart(diskData: fetcher.diskInformation)
 //            Button("Fetch") {
 //                let output = try? fetcher.execute(with: "df -k")
 //                print(output ?? "none")
