@@ -13,7 +13,7 @@ struct Menu_Bar_UtilityApp: App {
         MenuBarExtra {
             ContentView()
         } label: {
-            Label("Disk Anylizer", image: "externaldrive.connected.to.line.below.fill")
+            Text("Disk Analyser")
         }
         .menuBarExtraStyle(.window)
     }
