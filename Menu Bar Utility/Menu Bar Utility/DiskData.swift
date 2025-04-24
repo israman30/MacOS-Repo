@@ -19,7 +19,7 @@ struct DiskData {
     let size: Int64
     let used: Int64
     let available: Int64
-    let capcity: Int
+    let capacity: Int
     let mountPoint: String
     
     var isSystemVolume: Bool {
@@ -27,7 +27,7 @@ struct DiskData {
     }
     
     var isDataVolume: Bool {
-        fileSystemName == "/System/Volumes/Data"
+        mountPoint == "/System/Volumes/Data"
     }
 }
 

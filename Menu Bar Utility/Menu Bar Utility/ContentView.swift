@@ -21,9 +21,13 @@ class DiscInformationFetch: ObservableObject {
     
     func getDiskInformation() async throws -> [FormattedDiskData] {
         try await Task.detached(priority: .userInitiated) {
-            let output = try self.execute(with: "df -k")
+            let output = try self.execute(with: "df -k -P")
+            print("Output: \(output)")
             let info = try self.parse(output)
+            print("Info: \(info)")
             let formattedDiskInfo = self.parseCapacity(info)
+            
+            print("Formatted Info: \(formattedDiskInfo.count)")
             return formattedDiskInfo
         }
         .value
@@ -33,22 +37,26 @@ class DiscInformationFetch: ObservableObject {
         let process = Process()
         let pipe = Pipe()
         
-        process.launchPath = "/bin/sh"
-        process.arguments = ["-c", command]
         process.standardOutput = pipe
+        process.standardError = pipe
+        process.arguments = ["-c", command]
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
         
         try? process.run()
-        process.waitUntilExit()
+//        process.waitUntilExit()
         
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         
         guard let output = String(data: data, encoding: .utf8) else {
             throw CommandError.invalidData
         }
+        
         process.waitUntilExit()
+        
         guard process.terminationStatus == 0 else {
             throw CommandError.commandFailed(output)
         }
+        
         return output
     }
     
@@ -70,7 +78,7 @@ class DiscInformationFetch: ObservableObject {
                 size: Int64(components[1]) ?? 0,
                 used: Int64(components[2]) ?? 0,
                 available: Int64(components[3]) ?? 0,
-                capcity: Int(components[4].replacingOccurrences(of: "%", with: "")) ?? 0,
+                capacity: Int(components[4].replacingOccurrences(of: "%", with: "")) ?? 0,
                 mountPoint: components[5...].joined(separator: " ")
             )
         }
@@ -80,20 +88,21 @@ class DiscInformationFetch: ObservableObject {
         var results = [FormattedDiskData]()
         let total = info.systemVolume?.size ?? 0
         
-        if let systemVoluem = info.systemVolume {
-            results.append(
-                FormattedDiskData(title: "System", size: systemVoluem.used, totalsize: total)
-            )
-        }
+        let system = info.systemVolume?.used ?? 0
+        results.append(
+            FormattedDiskData(title: "System", size: system, totalsize: total)
+        )
         
-        if let dataValume = info.systemVolume {
-            results.append(
-                FormattedDiskData(title: "Available", size: dataValume.available, totalsize: total)
-            )
-            results.append(
-                FormattedDiskData(title: "User data", size: dataValume.used, totalsize: total)
-            )
-        }
+        
+        let available = info.systemVolume?.available ?? 0
+        results.append(
+            FormattedDiskData(title: "Available", size: available, totalsize: total)
+        )
+        let userData = info.dataVolume?.used ?? 0
+        results.append(
+            FormattedDiskData(title: "User data", size: userData, totalsize: total)
+        )
+        
         return results
     }
 }
@@ -104,12 +113,24 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
+            Text("Fetcher: \(fetcher.diskInformation.count)")
             Button("Fetch") {
                 let output = try? fetcher.execute(with: "df -k")
                 print(output ?? "none")
             }
         }
         .padding()
+        .task {
+            await fetchInfoDisk()
+        }
+    }
+    
+    private func fetchInfoDisk() async {
+        do {
+            fetcher.diskInformation = try await fetcher.getDiskInformation()
+        } catch {
+            fetcher.error = error
+        }
     }
 }
 
