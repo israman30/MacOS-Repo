@@ -15,6 +15,20 @@ class DiscInformationFetch: ObservableObject {
         case emptyOutput
     }
     
+    @Published var diskInformation: [FormattedDiskData] = []
+    @Published var error: Error?
+    @Published var isLoading: Bool = false
+    
+    func getDiskInformation() async throws -> [FormattedDiskData] {
+        try await Task.detached(priority: .userInitiated) {
+            let output = try self.execute(with: "df -k")
+            let info = try self.parse(output)
+            let formattedDiskInfo = self.parseCapacity(info)
+            return formattedDiskInfo
+        }
+        .value
+    }
+    
     func execute(with command: String) throws -> String {
         let process = Process()
         let pipe = Pipe()
