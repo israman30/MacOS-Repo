@@ -52,7 +52,7 @@ class DiscInformationFetch: ObservableObject {
             guard components.count >= 5 else { return nil }
             
             return DiskData(
-                fileSystemURL: String(components[0]),
+                fileSystemName: String(components[0]),
                 size: Int64(components[1]) ?? 0,
                 used: Int64(components[2]) ?? 0,
                 available: Int64(components[3]) ?? 0,
@@ -60,6 +60,27 @@ class DiscInformationFetch: ObservableObject {
                 mountPoint: components[5...].joined(separator: " ")
             )
         }
+    }
+    
+    func parseCapacity(_ info: [DiskData]) -> [FormattedDiskData] {
+        var results = [FormattedDiskData]()
+        let total = info.systemVolume?.size ?? 0
+        
+        if let systemVoluem = info.systemVolume {
+            results.append(
+                FormattedDiskData(title: "System", size: systemVoluem.used, totalsize: total)
+            )
+        }
+        
+        if let dataValume = info.systemVolume {
+            results.append(
+                FormattedDiskData(title: "Available", size: dataValume.available, totalsize: total)
+            )
+            results.append(
+                FormattedDiskData(title: "User data", size: dataValume.used, totalsize: total)
+            )
+        }
+        return results
     }
 }
 

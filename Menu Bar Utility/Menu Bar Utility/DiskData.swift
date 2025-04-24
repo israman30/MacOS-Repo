@@ -7,6 +7,13 @@
 
 import Foundation
 
+struct FormattedDiskData: Identifiable {
+    let id = UUID()
+    let title: String
+    let size: Int64
+    let totalsize: Int64
+}
+
 struct DiskData {
     let fileSystemName: String
     let size: Int64
