@@ -43,6 +43,15 @@ struct HomeView: View {
                         Text($0.categoryTitle)
                             .tag($0.categoryTitle)
                             .foregroundStyle(selectedTag == $0.categoryTitle ? Color.primary : .gray)
+                            .contextMenu {
+                                Button("Rename") {
+                                    
+                                }
+                                
+                                Button("Delete") {
+                                    
+                                }
+                            }
                     }
                 } header: {
                     HStack {
@@ -63,7 +72,7 @@ struct HomeView: View {
         }
         .navigationTitle(selectedTag ?? "Notes")
         .alert("Add Category", isPresented: $addCategory) {
-            TextField("Some category", text: $categoryTitle)
+            TextField("Work", text: $categoryTitle)
             
             Button("Cancel", role: .cancel) {
                 categoryTitle = ""
