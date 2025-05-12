@@ -29,10 +29,10 @@ struct HomeView: View {
                 Text("Favorites")
                     .tag("Favorites")
             }
-            .navigationTitle(selectedTag ?? "Notes")
         } detail: {
             
         }
+        .navigationTitle(selectedTag ?? "Notes")
 
     }
 }
