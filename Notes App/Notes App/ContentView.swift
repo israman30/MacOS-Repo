@@ -19,15 +19,18 @@ struct ContentView: View {
 }
 
 struct HomeView: View {
-    @State private var selectedTag: String?
+    @State private var selectedTag: String? = "All Notes"
     
     var body: some View {
         NavigationSplitView {
             List(selection: $selectedTag) {
                 Text("All notes")
                     .tag("All notes")
+                    .foregroundStyle(selectedTag == "All notes" ? Color.primary : .gray)
+                
                 Text("Favorites")
                     .tag("Favorites")
+                    .foregroundStyle(selectedTag == "Favorites" ? Color.primary : .gray)
             }
         } detail: {
             
