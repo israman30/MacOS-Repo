@@ -107,8 +107,7 @@ struct HomeView: View {
                 }
             }
         }
-        .alert("Are you sure you want to delete this \(categoryTitle
-) category?", isPresented: $deleteRequest) {
+        .alert("Are you sure you want to delete this \(categoryTitle) category?", isPresented: $deleteRequest) {
             Button("Cancel", role: .cancel) {
                 categoryTitle = ""
                 requestedCategory = nil
