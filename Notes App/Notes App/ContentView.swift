@@ -9,16 +9,30 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+       HomeView()
+            .frame(minWidth: 320, minHeight: 400)
     }
 }
 
 #Preview {
     ContentView()
+}
+
+struct HomeView: View {
+    @State private var selectedTag: String?
+    
+    var body: some View {
+        NavigationSplitView {
+            List(selection: $selectedTag) {
+                Text("All notes")
+                    .tag("All notes")
+                Text("Favorites")
+                    .tag("Favorites")
+            }
+            .navigationTitle(selectedTag ?? "Notes")
+        } detail: {
+            
+        }
+
+    }
 }

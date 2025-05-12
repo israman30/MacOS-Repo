@@ -13,6 +13,7 @@ struct Notes_AppApp: App {
         WindowGroup {
             ContentView()
         }
+        .windowResizability(.contentSize)
         // App data model
         .modelContainer(for: [Note.self, NoteCategory.self])
     }
