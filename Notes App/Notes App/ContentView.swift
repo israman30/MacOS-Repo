@@ -23,6 +23,9 @@ struct HomeView: View {
     @State private var selectedTag: String? = "All Notes"
     // Query categories
     @Query(animation: .snappy) private var categories: [NoteCategory] = []
+    @State private var addCategory: Bool = false
+    @State private var categoryTitle: String = ""
+    @Environment(\.modelContext) private var context
     
     var body: some View {
         NavigationSplitView {
@@ -45,7 +48,7 @@ struct HomeView: View {
                     HStack {
                         Text("Categories")
                         Button {
-                            
+                            addCategory.toggle()
                         } label: {
                             Image(systemName: "plus")
                                 
@@ -59,6 +62,19 @@ struct HomeView: View {
             
         }
         .navigationTitle(selectedTag ?? "Notes")
+        .alert("Add Category", isPresented: $addCategory) {
+            TextField("Some category", text: $categoryTitle)
+            
+            Button("Cancel", role: .cancel) {
+                categoryTitle = ""
+            }
+            
+            Button("Add") {
+                let newCategory = NoteCategory(categoryTitle: categoryTitle)
+                context.insert(newCategory)
+                categoryTitle = ""
+            }
+        }
 
     }
 }
