@@ -26,6 +26,9 @@ struct HomeView: View {
     @State private var addCategory: Bool = false
     @State private var categoryTitle: String = ""
     @Environment(\.modelContext) private var context
+    @State private var requestedCategory: NoteCategory?
+    @State private var deleteRequest: Bool = false
+    @State private var renameRequest: Bool = false
     
     var body: some View {
         NavigationSplitView {
@@ -39,17 +42,21 @@ struct HomeView: View {
                     .foregroundStyle(selectedTag == "Favorites" ? Color.primary : .gray)
                 
                 Section {
-                    ForEach(categories) {
-                        Text($0.categoryTitle)
-                            .tag($0.categoryTitle)
-                            .foregroundStyle(selectedTag == $0.categoryTitle ? Color.primary : .gray)
+                    ForEach(categories) { category in
+                        Text(category.categoryTitle)
+                            .tag(category.categoryTitle)
+                            .foregroundStyle(selectedTag == category.categoryTitle ? Color.primary : .gray)
                             .contextMenu {
                                 Button("Rename") {
-                                    
+                                    categoryTitle = category.categoryTitle
+                                    requestedCategory = category
+                                    renameRequest = true
                                 }
                                 
                                 Button("Delete") {
-                                    
+                                    categoryTitle = category.categoryTitle
+                                    requestedCategory = category
+                                    deleteRequest = true
                                 }
                             }
                     }
@@ -82,6 +89,37 @@ struct HomeView: View {
                 let newCategory = NoteCategory(categoryTitle: categoryTitle)
                 context.insert(newCategory)
                 categoryTitle = ""
+            }
+        }
+        .alert("Rename Category", isPresented: $renameRequest) {
+            TextField("Work", text: $categoryTitle)
+            
+            Button("Cancel", role: .cancel) {
+                categoryTitle = ""
+                requestedCategory = nil
+            }
+            
+            Button("Rename") {
+                if let requestedCategory = requestedCategory {
+                    requestedCategory.categoryTitle = categoryTitle
+                    categoryTitle = ""
+                    self.requestedCategory = nil
+                }
+            }
+        }
+        .alert("Are you sure you want to delete this \(categoryTitle
+) category?", isPresented: $deleteRequest) {
+            Button("Cancel", role: .cancel) {
+                categoryTitle = ""
+                requestedCategory = nil
+            }
+            
+            Button("Delete", role: .destructive) {
+                if let requestedCategory = requestedCategory {
+                    context.delete(requestedCategory)
+                    categoryTitle = ""
+                    self.requestedCategory = nil
+                }
             }
         }
 
