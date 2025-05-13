@@ -42,6 +42,13 @@ struct NotesView: View {
                 ) {
                     ForEach(notes) { note in
                         CardView(note: note, isKeyboardEnabled: $isKeyboardEnabled)
+                            .contextMenu {
+                                Button {
+                                    note.isFavorite.toggle()
+                                } label: {
+                                    Text(note.isFavorite ? "Remove from favorites" : "Add to favorites")
+                                }
+                            }
                     }
                 }
                 .padding(12)
