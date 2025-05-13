@@ -30,6 +30,7 @@ struct NotesView: View {
     }
     
     @FocusState private var isKeyboardEnabled: Bool
+    @Environment(\.modelContext) private var context
     
     var body: some View {
         GeometryReader { reader in
@@ -71,6 +72,10 @@ struct NotesView: View {
                                     }
                                 } label: {
                                     Text("Category")
+                                }
+                                
+                                Button("Delete", role: .destructive) {
+                                    context.delete(note)
                                 }
                             }
                     }
