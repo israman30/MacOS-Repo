@@ -135,6 +135,7 @@ struct HomeView: View {
                 } label: {
                     Image(systemName: isDark ? "sun.min" :  "moon")
                 }
+                .contentTransition(.symbolEffect(.replace))
             }
         }
         .preferredColorScheme(isDark ? .dark : .light)
