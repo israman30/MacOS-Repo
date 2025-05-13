@@ -76,7 +76,7 @@ struct HomeView: View {
                 }
             }
         } detail: {
-            
+            NotesView(category: selectedTag)
         }
         .navigationTitle(selectedTag ?? "Notes")
         .alert("Add Category", isPresented: $addCategory) {
