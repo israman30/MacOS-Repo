@@ -125,7 +125,8 @@ struct HomeView: View {
         .toolbar {
             HStack(spacing: 10) {
                 Button {
-                    
+                    let note = Note(content: "")
+                    context.insert(note)
                 } label: {
                     Image(systemName: "plus")
                 }
