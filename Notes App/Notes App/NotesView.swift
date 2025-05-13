@@ -64,6 +64,10 @@ struct NotesView: View {
                                                 Text(category.categoryTitle)
                                             }
                                         }
+                                        
+                                        Button("Remove from category") {
+                                            note.category = nil
+                                        }
                                     }
                                 } label: {
                                     Text("Category")
@@ -87,22 +91,36 @@ struct NotesView: View {
 struct CardView: View {
     @Bindable var note: Note
     var isKeyboardEnabled: FocusState<Bool>.Binding
+    @State private var showNote: Bool = false
     
     var body: some View {
-        TextEditor(text: $note.content)
-            .focused(isKeyboardEnabled)
-            .overlay(alignment: .leading, content: {
-                Text("Finish work")
-                    .foregroundStyle(.gray)
-                    .padding(.leading, 5)
-                    .opacity(note.content.isEmpty ? 1 : 0)
-                    .allowsHitTesting(true)
-            })
-            .scrollContentBackground(.hidden)
-            .multilineTextAlignment(.leading)
-            .padding(15)
-            .kerning(1.2)
-            .frame(maxWidth: .infinity)
-            .background(.gray.opacity(0.01), in: .rect(cornerRadius: 12))
+        ZStack {
+            Rectangle()
+                .fill(.clear)
+            
+            if showNote {
+                TextEditor(text: $note.content)
+                    .focused(isKeyboardEnabled)
+                    .overlay(alignment: .leading, content: {
+                        Text("Finish work")
+                            .foregroundStyle(.gray)
+                            .padding(.leading, 5)
+                            .opacity(note.content.isEmpty ? 1 : 0)
+                            .allowsHitTesting(true)
+                    })
+                    .scrollContentBackground(.hidden)
+                    .multilineTextAlignment(.leading)
+                    .padding(15)
+                    .kerning(1.2)
+                    .frame(maxWidth: .infinity)
+                    .background(.gray.opacity(0.01), in: .rect(cornerRadius: 12))
+            }
+        }
+        .onAppear {
+            showNote = true
+        }
+        .onDisappear {
+            showNote = false
+        }
     }
 }
