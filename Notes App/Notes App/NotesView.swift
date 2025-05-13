@@ -10,10 +10,12 @@ import SwiftData
 
 struct NotesView: View {
     var category: String?
+    var allCatrogories: [NoteCategory]
     @Query private var notes: [Note]
     
-    init(category: String? = nil) {
+    init(category: String? = nil, allCatrogories: [NoteCategory]) {
         self.category = category
+        self.allCatrogories = allCatrogories
         // dynamic filtering
         let predicate = #Predicate<Note> {
             $0.category?.categoryTitle == category
@@ -48,6 +50,24 @@ struct NotesView: View {
                                 } label: {
                                     Text(note.isFavorite ? "Remove from favorites" : "Add to favorites")
                                 }
+                                
+                                Menu {
+                                    ForEach(allCatrogories) { category in
+                                        Button {
+                                            note.category = category
+                                        } label: {
+                                            HStack(spacing: 5) {
+                                                if category == note.category {
+                                                    Image(systemName: "checkmark")
+                                                        .font(.caption)
+                                                }
+                                                Text(category.categoryTitle)
+                                            }
+                                        }
+                                    }
+                                } label: {
+                                    Text("Category")
+                                }
                             }
                     }
                 }
@@ -61,7 +81,7 @@ struct NotesView: View {
 }
 
 #Preview {
-    NotesView()
+    NotesView(allCatrogories: [NoteCategory]([]))
 }
 
 struct CardView: View {
