@@ -29,6 +29,7 @@ struct HomeView: View {
     @State private var requestedCategory: NoteCategory?
     @State private var deleteRequest: Bool = false
     @State private var renameRequest: Bool = false
+    @State private var isDark: Bool = true
     
     var body: some View {
         NavigationSplitView {
@@ -121,6 +122,21 @@ struct HomeView: View {
                 }
             }
         }
-
+        .toolbar {
+            HStack(spacing: 10) {
+                Button {
+                    
+                } label: {
+                    Image(systemName: "plus")
+                }
+                
+                Button {
+                    isDark.toggle()
+                } label: {
+                    Image(systemName: isDark ? "sun.min" :  "moon")
+                }
+            }
+        }
+        .preferredColorScheme(isDark ? .dark : .light)
     }
 }
