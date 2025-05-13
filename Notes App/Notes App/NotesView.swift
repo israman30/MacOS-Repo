@@ -46,6 +46,9 @@ struct NotesView: View {
                 }
                 .padding(12)
             }
+            .onTapGesture {
+                isKeyboardEnabled = false
+            }
         }
     }
 }
