@@ -27,6 +27,8 @@ struct NotesView: View {
         _notes = Query(filter: finalPredicate, sort: [], animation: .snappy)
     }
     
+    @FocusState private var isKeyboardEnabled: Bool
+    
     var body: some View {
         GeometryReader { reader in
             let size = reader.size
@@ -38,7 +40,9 @@ struct NotesView: View {
                     columns: Array(repeating: GridItem(spacing: 10), count: row),
                     spacing: 10
                 ) {
-                    
+                    ForEach(notes) { note in
+                        CardView(note: note, isKeyboardEnabled: $isKeyboardEnabled)
+                    }
                 }
                 .padding(12)
             }
@@ -48,4 +52,27 @@ struct NotesView: View {
 
 #Preview {
     NotesView()
+}
+
+struct CardView: View {
+    @Bindable var note: Note
+    var isKeyboardEnabled: FocusState<Bool>.Binding
+    
+    var body: some View {
+        TextEditor(text: $note.content)
+            .focused(isKeyboardEnabled)
+            .overlay(alignment: .leading, content: {
+                Text("Finish work")
+                    .foregroundStyle(.gray)
+                    .padding(.leading, 5)
+                    .opacity(note.content.isEmpty ? 1 : 0)
+                    .allowsHitTesting(true)
+            })
+            .scrollContentBackground(.hidden)
+            .multilineTextAlignment(.leading)
+            .padding(15)
+            .kerning(1.2)
+            .frame(maxWidth: .infinity)
+            .background(.gray.opacity(0.01), in: .rect(cornerRadius: 12))
+    }
 }
