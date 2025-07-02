@@ -3,14 +3,14 @@ import SwiftUI
 
 // MARK: - File Types and Categories
 enum FileCategory: String, CaseIterable {
-    case images = FileCategories.images
-    case documents = FileCategories.documents
-    case videos = FileCategories.videos
-    case audio = FileCategories.audio
-    case archives = FileCategories.archives
-    case screenshots = FileCategories.screenshots
-    case downloads = FileCategories.downloads
-    case unknown = FileCategories.unknown
+    case images = "Images"
+    case documents = "Documents"
+    case videos = "Videos"
+    case audio = "Audio"
+    case archives = "Archives"
+    case screenshots = "Screenshots"
+    case downloads = "Downloads"
+    case unknown = "Unknown"
     
     var icon: String {
         switch self {
