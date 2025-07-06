@@ -14,14 +14,22 @@ enum FileCategory: String, CaseIterable {
     
     var icon: String {
         switch self {
-        case .images: return SystemIcons.photo
-        case .documents: return SystemIcons.docText
-        case .videos: return SystemIcons.video
-        case .audio: return SystemIcons.musicNote
-        case .archives: return SystemIcons.archivebox
-        case .screenshots: return SystemIcons.camera
-        case .downloads: return SystemIcons.arrowDownCircle
-        case .unknown: return SystemIcons.questionmarkCircle
+        case .images:
+            return SystemIcons.photo
+        case .documents:
+            return SystemIcons.docText
+        case .videos:
+            return SystemIcons.video
+        case .audio:
+            return SystemIcons.musicNote
+        case .archives:
+            return SystemIcons.archivebox
+        case .screenshots:
+            return SystemIcons.camera
+        case .downloads:
+            return SystemIcons.arrowDownCircle
+        case .unknown:
+            return SystemIcons.questionmarkCircle
         }
     }
     
