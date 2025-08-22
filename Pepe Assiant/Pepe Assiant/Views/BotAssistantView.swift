@@ -438,3 +438,6 @@ extension View {
 //        return Path(path.cgPath)
 //    }
 //} 
+#Preview {
+    BotAssistantView()
+}
