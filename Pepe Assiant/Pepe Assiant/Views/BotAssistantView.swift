@@ -57,6 +57,21 @@ struct BotAssistantView: View {
         .onAppear {
             addWelcomeMessage()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .pepeScanDesktop)) { _ in
+            addBotMessage(BotMessages.scanDesktopMessage, action: .scanDesktop)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .pepeScanDownloads)) { _ in
+            addBotMessage(BotMessages.scanDownloadsMessage, action: .scanDownloads)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .pepeScanDocuments)) { _ in
+            addBotMessage(BotMessages.scanDocumentsMessage, action: .scanDocuments)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .pepeClearDerivedData)) { _ in
+            clearDerivedData()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .pepeUndo)) { _ in
+            Task { await fileOperations.undoLastAction() }
+        }
         .sheet(isPresented: $showingActionPreview) {
             ActionPreviewView(
                 actions: scanResults?.suggestedActions ?? [],

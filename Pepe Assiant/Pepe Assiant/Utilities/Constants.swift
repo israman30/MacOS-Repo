@@ -270,6 +270,15 @@ struct DownloadsAutoSort {
     ]
 }
 
+// MARK: - Menu Notifications (for keyboard shortcuts)
+extension Notification.Name {
+    static let pepeScanDesktop = Notification.Name("Pepe.scanDesktop")
+    static let pepeScanDownloads = Notification.Name("Pepe.scanDownloads")
+    static let pepeScanDocuments = Notification.Name("Pepe.scanDocuments")
+    static let pepeClearDerivedData = Notification.Name("Pepe.clearDerivedData")
+    static let pepeUndo = Notification.Name("Pepe.undo")
+}
+
 // MARK: - Smart Tidy: User Confirmation
 struct SmartTidyRules {
     /// Always ask user before any change, move, zip, or re-organization
