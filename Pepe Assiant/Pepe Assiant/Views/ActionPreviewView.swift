@@ -66,7 +66,7 @@ struct ActionPreviewView: View {
             Divider()
         }
         .padding()
-        .background(Color(.darkGray))
+        .background(Color(.controlBackgroundColor))
         .accessibilityElement(children: .combine)
         .accessibilityLabel(UIText.summary)
         .accessibilityValue("\(selectedActions.count) \(UIText.of) \(actions.count) \(UIText.actionsSelected)")
@@ -160,7 +160,7 @@ struct ActionPreviewView: View {
             }
             .padding()
         }
-        .background(Color(.darkGray))
+        .background(Color(.controlBackgroundColor))
     }
     
     // MARK: - Helper Methods

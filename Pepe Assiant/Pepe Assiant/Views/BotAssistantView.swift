@@ -36,8 +36,12 @@ struct BotAssistantView: View {
             // Header
             headerView
             
+            Divider()
+            
             // Chat Area
             chatArea
+            
+            Divider()
             
             // Input Area
             inputArea
@@ -67,10 +71,10 @@ struct BotAssistantView: View {
     
     // MARK: - Header View
     private var headerView: some View {
-        HStack {
+        HStack(spacing: 12) {
             Image(systemName: SystemIcons.sparkles)
                 .font(.title2)
-                .foregroundColor(.blue)
+                .foregroundColor(.accentColor)
                 .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 2) {
@@ -110,11 +114,12 @@ struct BotAssistantView: View {
     private var chatArea: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(spacing: 12) {
+                LazyVStack(spacing: 16) {
                     ForEach(messages) { message in
                         ChatBubbleView(message: message) { action in
                             handleBotAction(action)
                         }
+                        .transition(.opacity.combined(with: .move(edge: .bottom)))
                     }
                     
                     if fileScanner.isScanning {
@@ -129,7 +134,7 @@ struct BotAssistantView: View {
             }
             .accessibilityLabel("Conversation")
             .onChange(of: messages.count) { _, _ in
-                withAnimation {
+                withAnimation(.easeOut(duration: 0.25)) {
                     proxy.scrollTo(messages.last?.id, anchor: .bottom)
                 }
             }
@@ -144,17 +149,18 @@ struct BotAssistantView: View {
                     .scaleEffect(0.8)
                     .accessibilityHidden(true)
                 Text("\(UIText.scanning) \(fileScanner.currentScanLocation)...")
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
             }
             
             ProgressView(value: fileScanner.scanProgress)
                 .progressViewStyle(LinearProgressViewStyle())
-                .frame(height: 4)
+                .tint(.blue)
+                .frame(height: 6)
                 .accessibilityHidden(true)
         }
-        .padding()
-        .background(Color(.darkGray))
+        .padding(16)
+        .background(Color(.controlBackgroundColor))
         .cornerRadius(12)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(UIText.scanningProgress)
@@ -169,17 +175,18 @@ struct BotAssistantView: View {
                     .scaleEffect(0.8)
                     .accessibilityHidden(true)
                 Text(fileOperations.currentOperation)
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
             }
             
             ProgressView(value: fileOperations.processingProgress)
                 .progressViewStyle(LinearProgressViewStyle())
-                .frame(height: 4)
+                .tint(.blue)
+                .frame(height: 6)
                 .accessibilityHidden(true)
         }
-        .padding()
-        .background(Color(.darkGray))
+        .padding(16)
+        .background(Color(.controlBackgroundColor))
         .cornerRadius(12)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(UIText.processingProgress)
@@ -188,27 +195,62 @@ struct BotAssistantView: View {
     
     // MARK: - Input Area
     private var inputArea: some View {
-        HStack(spacing: 12) {
-            TextField(UIText.messageInputPlaceholder, text: $userInput)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .onSubmit {
-                    sendMessage()
-                }
-                .accessibilityLabel(UIText.messageInputField)
-                .accessibilityHint("Type your message to the assistant.")
+        VStack(spacing: 12) {
+            // Quick action chips
+            quickActionChips
             
-            Button(action: sendMessage) {
-                Image(systemName: SystemIcons.arrowUpCircleFill)
-                    .font(.title2)
-                    .foregroundColor(.blue)
-                    .accessibilityHidden(true)
+            HStack(spacing: 12) {
+                TextField(UIText.messageInputPlaceholder, text: $userInput)
+                    .textFieldStyle(.plain)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(Color(.controlBackgroundColor))
+                    .cornerRadius(24)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 24)
+                            .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
+                    )
+                    .onSubmit {
+                        sendMessage()
+                    }
+                    .accessibilityLabel(UIText.messageInputField)
+                    .accessibilityHint("Type your message to the assistant.")
+                
+                Button(action: sendMessage) {
+                    Image(systemName: SystemIcons.arrowUpCircleFill)
+                        .font(.title2)
+                        .foregroundColor(userInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .secondary : .blue)
+                        .accessibilityHidden(true)
+                }
+                .buttonStyle(.plain)
+                .disabled(userInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .accessibilityLabel(UIText.sendMessage)
+                .accessibilityHint("Sends your message.")
             }
-            .disabled(userInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            .accessibilityLabel(UIText.sendMessage)
-            .accessibilityHint("Sends your message.")
         }
-        .padding()
+        .padding(16)
         .background(Color(NSColor.windowBackgroundColor))
+    }
+    
+    // MARK: - Quick Action Chips
+    private var quickActionChips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                QuickChip(title: "Desktop", icon: SystemIcons.folder) {
+                    addBotMessage(BotMessages.scanDesktopMessage, action: .scanDesktop)
+                }
+                QuickChip(title: "Downloads", icon: SystemIcons.arrowDownCircle) {
+                    addBotMessage(BotMessages.scanDownloadsMessage, action: .scanDownloads)
+                }
+                QuickChip(title: "Documents", icon: SystemIcons.doc) {
+                    addBotMessage(BotMessages.scanDocumentsMessage, action: .scanDocuments)
+                }
+                QuickChip(title: "Find Duplicates", icon: SystemIcons.docOnDoc) {
+                    addBotMessage(BotMessages.duplicateMessage, action: .scanDesktop)
+                }
+            }
+            .padding(.horizontal, 4)
+        }
     }
     
     // MARK: - Send Message
@@ -353,6 +395,35 @@ struct BotAssistantView: View {
     }
 }
 
+// MARK: - Quick Chip
+struct QuickChip: View {
+    let title: String
+    let icon: String
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.caption)
+                Text(title)
+                    .font(.caption)
+                    .fontWeight(.medium)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color(.controlBackgroundColor))
+            .foregroundColor(.primary)
+            .cornerRadius(20)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 // MARK: - Chat Bubble View
 struct ChatBubbleView: View {
     let message: BotAssistantView.ChatMessage
@@ -372,24 +443,28 @@ struct ChatBubbleView: View {
     
     private var userBubble: some View {
         Text(message.text)
-            .padding()
-            .background(Color.blue)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color.accentColor)
             .foregroundColor(.white)
             .cornerRadius(18)
-            .cornerRadius(4)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("You")
             .accessibilityValue(message.text)
     }
     
     private var botBubble: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
             Text(message.text)
-                .padding()
-                .background(Color(.darkGray).opacity(0.4))
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(Color(.controlBackgroundColor))
                 .foregroundColor(.primary)
                 .cornerRadius(18)
-                .cornerRadius(4)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18)
+                        .stroke(Color.secondary.opacity(0.15), lineWidth: 1)
+                )
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel("Assistant")
                 .accessibilityValue(message.text)
@@ -403,18 +478,21 @@ struct ChatBubbleView: View {
     
     private func actionButton(for action: BotAssistantView.ChatMessage.BotAction) -> some View {
         Button(action: { onAction(action) }) {
-            HStack {
+            HStack(spacing: 6) {
                 Image(systemName: iconForAction(action))
+                    .font(.subheadline)
                     .accessibilityHidden(true)
                 Text(textForAction(action))
+                    .font(.subheadline)
+                    .fontWeight(.medium)
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(Color.blue.opacity(0.1))
-            .foregroundColor(.blue)
-            .cornerRadius(8)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(Color.accentColor.opacity(0.12))
+            .foregroundColor(.accentColor)
+            .cornerRadius(10)
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.plain)
         .accessibilityLabel(textForAction(action))
         .accessibilityHint(accessibilityHintForAction(action))
     }
@@ -461,20 +539,3 @@ struct ChatBubbleView: View {
     }
 }
 
-// MARK: - Corner Radius Extension
-extension View {
-//    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
-//        clipShape(RoundedCorner)
-//    }
-}
-
-//struct RoundedCorner: Shape {
-//    var radius: CGFloat = .infinity
-////    var corners: UIRectCorner = .allCorners
-//    var corners =
-//
-//    func path(in rect: CGRect) -> Path {
-//        let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
-//        return Path(path.cgPath)
-//    }
-//} 
