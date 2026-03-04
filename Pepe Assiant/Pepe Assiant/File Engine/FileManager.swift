@@ -102,6 +102,16 @@ struct CleanupAction: Identifiable {
     let action: ActionType
     let destination: String
     let description: String
+    /// When true (e.g. Smart Tidy auto-sort), move directly to destination without appending category subfolder
+    let moveDirectly: Bool
+    
+    init(file: FileInfo, action: ActionType, destination: String, description: String, moveDirectly: Bool = false) {
+        self.file = file
+        self.action = action
+        self.destination = destination
+        self.description = description
+        self.moveDirectly = moveDirectly
+    }
     
     enum ActionType {
         case move
@@ -116,6 +126,7 @@ struct ScanResults {
     let totalFiles: Int
     let filesByCategory: [FileCategory: [FileInfo]]
     let duplicates: [String: [FileInfo]]
+    let similarFiles: [[FileInfo]]  // Smart Tidy: similar (not exact) duplicates
     let oldFiles: [FileInfo]
     let largeFiles: [FileInfo]
     let suggestedActions: [CleanupAction]

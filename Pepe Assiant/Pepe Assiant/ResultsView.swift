@@ -62,6 +62,13 @@ struct ResultsView: View {
                 )
                 
                 SummaryCard(
+                    title: UIText.similarFiles,
+                    value: "\(scanResults.similarFiles.flatMap { $0 }.count)",
+                    icon: "photo.on.rectangle.angled",
+                    color: .teal
+                )
+                
+                SummaryCard(
                     title: UIText.oldFiles,
                     value: "\(scanResults.oldFiles.count)",
                     icon: SystemIcons.clock,
@@ -78,7 +85,7 @@ struct ResultsView: View {
             .padding(.horizontal)
         }
         .padding(.vertical, 8)
-        .background(Color(.darkGray))
+        .background(Color(.controlBackgroundColor))
         .accessibilityLabel("Summary")
     }
     
@@ -99,7 +106,7 @@ struct ResultsView: View {
             .padding(.horizontal)
         }
         .padding(.vertical, 8)
-        .background(Color(.darkGray))
+        .background(Color(.controlBackgroundColor))
         .accessibilityLabel("Categories")
         .onAppear {
             if selectedCategory == nil {
@@ -146,7 +153,7 @@ struct ResultsView: View {
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.darkGray))
+        .background(Color(.controlBackgroundColor))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("No files found. Select a different category or scan a different location.")
     }
@@ -185,7 +192,7 @@ struct SummaryCard: View {
         }
         .frame(width: 120, height: 80)
         .padding()
-        .background(Color(.darkGray))
+        .background(Color(.controlBackgroundColor))
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
         .accessibilityElement(children: .combine)
@@ -219,7 +226,7 @@ struct CategoryTab: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(isSelected ? category.color.opacity(0.2) : Color(.darkGray))
+            .background(isSelected ? category.color.opacity(0.2) : Color(.controlBackgroundColor))
             .foregroundColor(isSelected ? category.color : .primary)
             .cornerRadius(20)
         }
@@ -428,7 +435,7 @@ struct FileDetailView: View {
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(Color(.darkGray))
+        .background(Color(.controlBackgroundColor))
         .cornerRadius(12)
         .accessibilityElement(children: .combine)
     }
@@ -587,7 +594,7 @@ struct QuickActionButton: View {
                     .accessibilityHidden(true)
             }
             .padding()
-            .background(Color(.darkGray))
+            .background(Color(.controlBackgroundColor))
             .cornerRadius(8)
         }
         .buttonStyle(PlainButtonStyle())

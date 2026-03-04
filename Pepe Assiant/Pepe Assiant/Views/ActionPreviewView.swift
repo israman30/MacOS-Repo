@@ -7,6 +7,7 @@ struct ActionPreviewView: View {
     
     @Environment(\.dismiss) private var dismiss
     @State private var selectAll = false
+    @State private var showingExecuteConfirmation = false
     
     var body: some View {
         NavigationView {
@@ -36,6 +37,17 @@ struct ActionPreviewView: View {
         .onChange(of: selectedActions) { _ , _ in
             updateSelectAllState()
         }
+        .alert(SmartTidyRules.confirmExecuteTitle, isPresented: $showingExecuteConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Proceed") { performExecute() }
+        } message: {
+            Text(String(format: SmartTidyRules.confirmExecuteMessage, selectedActions.count))
+        }
+    }
+    
+    private func performExecute() {
+        onExecute()
+        dismiss()
     }
     
     // MARK: - Summary Header
@@ -66,7 +78,7 @@ struct ActionPreviewView: View {
             Divider()
         }
         .padding()
-        .background(Color(.darkGray))
+        .background(Color(.controlBackgroundColor))
         .accessibilityElement(children: .combine)
         .accessibilityLabel(UIText.summary)
         .accessibilityValue("\(selectedActions.count) \(UIText.of) \(actions.count) \(UIText.actionsSelected)")
@@ -150,8 +162,11 @@ struct ActionPreviewView: View {
                 .accessibilityHint("Closes the preview without making changes.")
                 
                 Button("\(UIText.executeSelected) (\(selectedActions.count))") {
-                    onExecute()
-                    dismiss()
+                    if SmartTidyRules.alwaysAskBeforeAction {
+                        showingExecuteConfirmation = true
+                    } else {
+                        performExecute()
+                    }
                 }
                 .buttonStyle(.borderedProminent)
                 .frame(maxWidth: .infinity)
@@ -160,7 +175,7 @@ struct ActionPreviewView: View {
             }
             .padding()
         }
-        .background(Color(.darkGray))
+        .background(Color(.controlBackgroundColor))
     }
     
     // MARK: - Helper Methods

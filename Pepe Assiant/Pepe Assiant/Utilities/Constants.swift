@@ -39,6 +39,7 @@ struct UIText {
     static let totalFiles = "Total Files"
     static let totalSize = "Total Size"
     static let duplicates = "Duplicates"
+    static let similarFiles = "Similar"
     static let oldFiles = "Old Files"
     static let largeFiles = "Large Files"
     
@@ -162,7 +163,9 @@ struct ActionTypes {
 struct ActionDescriptions {
     static let archiveOldFile = "Archive old file (%d days old)"
     static let deleteDuplicate = "Delete duplicate (keep newer version)"
+    static let deleteSimilar = "Delete similar file (keep best version)"
     static let compressLargeFile = "Compress large file (%@)"
+    static let autoSortDownload = "Auto-sort from Downloads (%@ → %@)"
 }
 
 // MARK: - Date Formats
@@ -232,4 +235,31 @@ struct ActionButtonLabels {
     static let scanDocuments = "Scan Documents"
     static let cleanAll = "Clean All"
     static let viewResults = "View Results"
+}
+
+// MARK: - Smart Tidy: Auto-Sort Downloads
+struct DownloadsAutoSort {
+    /// Files must sit in Downloads for this many hours before auto-sort suggests moving them
+    static let hoursThreshold = 24
+    
+    /// Extension → destination subfolder (relative to Documents or user home)
+    static let extensionToFolder: [String: String] = [
+        "pdf": "Documents", "doc": "Documents", "docx": "Documents", "txt": "Documents",
+        "rtf": "Documents", "pages": "Documents", "key": "Documents", "numbers": "Documents",
+        "xls": "Documents", "xlsx": "Documents", "ppt": "Documents", "pptx": "Documents",
+        "png": "Screenshots", "jpg": "Screenshots", "jpeg": "Screenshots", "gif": "Screenshots",
+        "heic": "Screenshots", "heif": "Screenshots", "webp": "Screenshots", "tiff": "Screenshots",
+        "bmp": "Screenshots", "mp4": "Videos", "mov": "Videos", "avi": "Videos", "mkv": "Videos",
+        "webm": "Videos", "m4v": "Videos", "mp3": "Audio", "wav": "Audio", "aac": "Audio",
+        "m4a": "Audio", "flac": "Audio", "zip": "Archives", "rar": "Archives", "7z": "Archives",
+        "dmg": "Archives", "tar": "Archives", "gz": "Archives"
+    ]
+}
+
+// MARK: - Smart Tidy: User Confirmation
+struct SmartTidyRules {
+    /// Always ask user before any change, move, zip, or re-organization
+    static let alwaysAskBeforeAction = true
+    static let confirmExecuteTitle = "Confirm File Operations"
+    static let confirmExecuteMessage = "You are about to perform %d file operation(s). Do you want to proceed?"
 }
