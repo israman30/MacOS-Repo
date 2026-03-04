@@ -38,17 +38,22 @@ struct BotAssistantView: View {
             // Header
             headerView
             
-            Divider()
+            Rectangle()
+                .fill(AppTheme.borderLight)
+                .frame(height: 1)
             
             // Chat Area
             chatArea
+                .background(AppTheme.surface)
             
-            Divider()
+            Rectangle()
+                .fill(AppTheme.borderLight)
+                .frame(height: 1)
             
             // Input Area
             inputArea
         }
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(AppTheme.surface)
         .onAppear {
             addWelcomeMessage()
         }
@@ -75,15 +80,21 @@ struct BotAssistantView: View {
     // MARK: - Header View
     private var headerView: some View {
         HStack(spacing: 12) {
-            Image(systemName: SystemIcons.sparkles)
-                .font(.title2)
-                .foregroundColor(.accentColor)
-                .accessibilityHidden(true)
+            ZStack {
+                Circle()
+                    .fill(AppTheme.primary.opacity(0.2))
+                    .frame(width: 40, height: 40)
+                Image(systemName: SystemIcons.sparkles)
+                    .font(.title2)
+                    .foregroundStyle(AppTheme.userBubbleGradient)
+                    .accessibilityHidden(true)
+            }
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(AppConstants.appName)
                     .font(.headline)
-                    .fontWeight(.semibold)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
                 
                 Text(AppConstants.appDescription)
                     .font(.caption)
@@ -108,7 +119,13 @@ struct BotAssistantView: View {
             }
         }
         .padding()
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(AppTheme.headerGradient)
+        .overlay(
+            Rectangle()
+                .frame(height: 1)
+                .foregroundColor(AppTheme.borderLight),
+            alignment: .bottom
+        )
         .accessibilityElement(children: .contain)
         .accessibilityLabel(UIText.pepeAssistantHeader)
     }
@@ -158,13 +175,17 @@ struct BotAssistantView: View {
             
             ProgressView(value: fileScanner.scanProgress)
                 .progressViewStyle(LinearProgressViewStyle())
-                .tint(.blue)
+                .tint(AppTheme.primary)
                 .frame(height: 6)
                 .accessibilityHidden(true)
         }
         .padding(16)
-        .background(Color(.controlBackgroundColor))
+        .background(AppTheme.cardBackground)
         .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(AppTheme.borderLight, lineWidth: 1)
+        )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(UIText.scanningProgress)
         .accessibilityValue("\(Int(fileScanner.scanProgress * 100))% \(UIText.complete)")
@@ -184,13 +205,17 @@ struct BotAssistantView: View {
             
             ProgressView(value: fileOperations.processingProgress)
                 .progressViewStyle(LinearProgressViewStyle())
-                .tint(.blue)
+                .tint(AppTheme.primary)
                 .frame(height: 6)
                 .accessibilityHidden(true)
         }
         .padding(16)
-        .background(Color(.controlBackgroundColor))
+        .background(AppTheme.cardBackground)
         .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(AppTheme.borderLight, lineWidth: 1)
+        )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(UIText.processingProgress)
         .accessibilityValue("\(Int(fileOperations.processingProgress * 100))% \(UIText.complete)")
@@ -207,11 +232,11 @@ struct BotAssistantView: View {
                     .textFieldStyle(.plain)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
-                    .background(Color(.controlBackgroundColor))
+                    .background(AppTheme.surfaceElevated)
                     .cornerRadius(24)
                     .overlay(
                         RoundedRectangle(cornerRadius: 24)
-                            .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
+                            .stroke(AppTheme.border, lineWidth: 1)
                     )
                     .onSubmit {
                         sendMessage()
@@ -220,10 +245,18 @@ struct BotAssistantView: View {
                     .accessibilityHint("Type your message to the assistant.")
                 
                 Button(action: sendMessage) {
-                    Image(systemName: SystemIcons.arrowUpCircleFill)
-                        .font(.title2)
-                        .foregroundColor(userInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .secondary : .blue)
-                        .accessibilityHidden(true)
+                    let isEmpty = userInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    if isEmpty {
+                        Image(systemName: SystemIcons.arrowUpCircleFill)
+                            .font(.title2)
+                            .foregroundStyle(Color.secondary)
+                            .accessibilityHidden(true)
+                    } else {
+                        Image(systemName: SystemIcons.arrowUpCircleFill)
+                            .font(.title2)
+                            .foregroundStyle(AppTheme.userBubbleGradient)
+                            .accessibilityHidden(true)
+                    }
                 }
                 .buttonStyle(.plain)
                 .disabled(userInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
@@ -232,26 +265,32 @@ struct BotAssistantView: View {
             }
         }
         .padding(16)
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(AppTheme.surface)
+        .overlay(
+            Rectangle()
+                .frame(height: 1)
+                .foregroundColor(AppTheme.borderLight),
+            alignment: .top
+        )
     }
     
     // MARK: - Quick Action Chips
     private var quickActionChips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                QuickChip(title: "Desktop", icon: SystemIcons.folder) {
+                QuickChip(title: "Desktop", icon: SystemIcons.folder, accentColor: AppTheme.chipColors[0]) {
                     addBotMessage(BotMessages.scanDesktopMessage, action: .scanDesktop)
                 }
-                QuickChip(title: "Downloads", icon: SystemIcons.arrowDownCircle) {
+                QuickChip(title: "Downloads", icon: SystemIcons.arrowDownCircle, accentColor: AppTheme.chipColors[1]) {
                     addBotMessage(BotMessages.scanDownloadsMessage, action: .scanDownloads)
                 }
-                QuickChip(title: "Documents", icon: SystemIcons.doc) {
+                QuickChip(title: "Documents", icon: SystemIcons.doc, accentColor: AppTheme.chipColors[2]) {
                     addBotMessage(BotMessages.scanDocumentsMessage, action: .scanDocuments)
                 }
-                QuickChip(title: "Find Duplicates", icon: SystemIcons.docOnDoc) {
+                QuickChip(title: "Find Duplicates", icon: SystemIcons.docOnDoc, accentColor: AppTheme.chipColors[3]) {
                     addBotMessage(BotMessages.duplicateMessage, action: .scanDesktop)
                 }
-                QuickChip(title: XcodeCleanerText.chipTitle, icon: SystemIcons.hammer) {
+                QuickChip(title: XcodeCleanerText.chipTitle, icon: SystemIcons.hammer, accentColor: AppTheme.accent) {
                     clearDerivedData()
                 }
             }
@@ -424,6 +463,7 @@ struct BotAssistantView: View {
 struct QuickChip: View {
     let title: String
     let icon: String
+    var accentColor: Color = AppTheme.primary
     let action: () -> Void
     
     var body: some View {
@@ -431,18 +471,19 @@ struct QuickChip: View {
             HStack(spacing: 6) {
                 Image(systemName: icon)
                     .font(.caption)
+                    .foregroundColor(accentColor)
                 Text(title)
                     .font(.caption)
                     .fontWeight(.medium)
+                    .foregroundColor(.primary)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(Color(.controlBackgroundColor))
-            .foregroundColor(.primary)
+            .background(accentColor.opacity(0.12))
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
+                    .stroke(accentColor.opacity(0.3), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -470,7 +511,7 @@ struct ChatBubbleView: View {
         Text(message.text)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            .background(Color.accentColor)
+            .background(AppTheme.userBubbleGradient)
             .foregroundColor(.white)
             .cornerRadius(18)
             .accessibilityElement(children: .ignore)
@@ -483,12 +524,12 @@ struct ChatBubbleView: View {
             Text(message.text)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-                .background(Color(.controlBackgroundColor))
+                .background(AppTheme.cardBackground)
                 .foregroundColor(.primary)
                 .cornerRadius(18)
                 .overlay(
                     RoundedRectangle(cornerRadius: 18)
-                        .stroke(Color.secondary.opacity(0.15), lineWidth: 1)
+                        .stroke(AppTheme.borderLight, lineWidth: 1)
                 )
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel("Assistant")
@@ -513,9 +554,13 @@ struct ChatBubbleView: View {
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
-            .background(Color.accentColor.opacity(0.12))
-            .foregroundColor(.accentColor)
+            .background(AppTheme.primary.opacity(0.15))
+            .foregroundColor(AppTheme.primaryDark)
             .cornerRadius(10)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(AppTheme.primary.opacity(0.3), lineWidth: 1)
+            )
         }
         .buttonStyle(.plain)
         .accessibilityLabel(textForAction(action))

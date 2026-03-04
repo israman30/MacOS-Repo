@@ -13,7 +13,8 @@ struct Pepe_AssiantApp: App {
         WindowGroup {
             ContentView()
                 .frame(minWidth: 800, minHeight: 600)
-                .background(Color(NSColor.windowBackgroundColor))
+                .background(AppTheme.surface)
+                .tint(AppTheme.primary)
         }
 //        .windowTitle("Pepe Assistant")
         .windowResizability(.contentSize)

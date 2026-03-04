@@ -55,7 +55,7 @@ struct ActionPreviewView: View {
         VStack(spacing: 12) {
             HStack {
                 Image(systemName: SystemIcons.checkmarkCircleFill)
-                    .foregroundColor(.green)
+                    .foregroundColor(AppTheme.success)
                     .font(.title2)
                     .accessibilityHidden(true)
                 
@@ -75,10 +75,12 @@ struct ActionPreviewView: View {
             // Action Type Summary
             actionTypeSummary
             
-            Divider()
+            Rectangle()
+                .fill(AppTheme.borderLight)
+                .frame(height: 1)
         }
         .padding()
-        .background(Color(.controlBackgroundColor))
+        .background(AppTheme.headerGradient)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(UIText.summary)
         .accessibilityValue("\(selectedActions.count) \(UIText.of) \(actions.count) \(UIText.actionsSelected)")
@@ -138,7 +140,7 @@ struct ActionPreviewView: View {
                         toggleSelectAll()
                     }
                     .font(.caption)
-                    .foregroundColor(.blue)
+                    .foregroundColor(AppTheme.primaryDark)
                     .accessibilityLabel(selectAll ? UIText.deselectAll : UIText.selectAll)
                     .accessibilityValue("\(selectedActions.count) \(UIText.of) \(actions.count) \(UIText.actionsSelected)")
                     .accessibilityHint("Selects or deselects all suggested actions.")
@@ -169,13 +171,14 @@ struct ActionPreviewView: View {
                     }
                 }
                 .buttonStyle(.borderedProminent)
+                .tint(AppTheme.primary)
                 .frame(maxWidth: .infinity)
                 .disabled(selectedActions.isEmpty)
                 .accessibilityHint("Executes the selected cleanup actions.")
             }
             .padding()
         }
-        .background(Color(.controlBackgroundColor))
+        .background(AppTheme.surface)
     }
     
     // MARK: - Helper Methods
@@ -250,7 +253,7 @@ struct ActionRowView: View {
             HStack(spacing: 12) {
                 // Selection Checkbox
                 Image(systemName: isSelected ? SystemIcons.checkmarkCircleFill : SystemIcons.circle)
-                    .foregroundColor(isSelected ? .blue : .secondary)
+                    .foregroundColor(isSelected ? AppTheme.primary : .secondary)
                     .font(.title3)
                     .accessibilityHidden(true)
                 
