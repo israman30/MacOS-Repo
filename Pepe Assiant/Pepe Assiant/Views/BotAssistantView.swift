@@ -62,6 +62,7 @@ struct BotAssistantView: View {
                 totalFiles: 0,
                 filesByCategory: [:],
                 duplicates: [:],
+                similarFiles: [],
                 oldFiles: [],
                 largeFiles: [],
                 suggestedActions: []

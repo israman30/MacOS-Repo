@@ -62,6 +62,13 @@ struct ResultsView: View {
                 )
                 
                 SummaryCard(
+                    title: UIText.similarFiles,
+                    value: "\(scanResults.similarFiles.flatMap { $0 }.count)",
+                    icon: "photo.on.rectangle.angled",
+                    color: .teal
+                )
+                
+                SummaryCard(
                     title: UIText.oldFiles,
                     value: "\(scanResults.oldFiles.count)",
                     icon: SystemIcons.clock,

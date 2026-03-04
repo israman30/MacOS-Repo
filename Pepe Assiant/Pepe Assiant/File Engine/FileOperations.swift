@@ -52,7 +52,7 @@ class FileOperations: ObservableObject {
     private func executeAction(_ action: CleanupAction) async -> Bool {
         switch action.action {
         case .move:
-            return await moveFile(action.file, to: action.destination)
+            return await moveFile(action.file, to: action.destination, directDestination: action.moveDirectly)
         case .archive:
             return await archiveFile(action.file, to: action.destination)
         case .delete:
@@ -63,10 +63,10 @@ class FileOperations: ObservableObject {
     }
     
     // MARK: - Move File
-    private func moveFile(_ file: FileInfo, to destination: String) async -> Bool {
+    private func moveFile(_ file: FileInfo, to destination: String, directDestination: Bool = false) async -> Bool {
         do {
             let destinationURL = expandPath(destination)
-            let destinationFolder = destinationURL.appendingPathComponent(file.category.rawValue)
+            let destinationFolder = directDestination ? destinationURL : destinationURL.appendingPathComponent(file.category.rawValue)
             
             // Create destination folder if it doesn't exist
             try fileManager.createDirectory(at: destinationFolder, withIntermediateDirectories: true)

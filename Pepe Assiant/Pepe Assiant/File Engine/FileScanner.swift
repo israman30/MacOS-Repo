@@ -1,5 +1,7 @@
 import Foundation
 import CryptoKit
+import Vision
+import AppKit
 
 class FileScanner: ObservableObject {
     @Published var isScanning = false
@@ -38,9 +40,10 @@ class FileScanner: ObservableObject {
         // Analyze files
         let categorizedFiles = categorizeFiles(allFiles)
         let duplicates = findDuplicates(allFiles)
+        let similarFiles = findSimilarFiles(allFiles, excludingDuplicates: duplicates)
         let oldFiles = allFiles.filter { $0.isOld }
         let largeFiles = allFiles.filter { $0.isLarge }
-        let suggestedActions = generateSuggestedActions(allFiles, duplicates: duplicates)
+        let suggestedActions = generateSuggestedActions(allFiles, duplicates: duplicates, similarFiles: similarFiles, scannedDirectories: directories)
         
         await MainActor.run {
             isScanning = false
@@ -52,6 +55,7 @@ class FileScanner: ObservableObject {
             totalFiles: allFiles.count,
             filesByCategory: categorizedFiles,
             duplicates: duplicates,
+            similarFiles: similarFiles,
             oldFiles: oldFiles,
             largeFiles: largeFiles,
             suggestedActions: suggestedActions
@@ -160,6 +164,95 @@ class FileScanner: ObservableObject {
         return hashGroups.filter { $0.value.count > 1 }
     }
     
+    // MARK: - Find Similar Files (Smart Tidy: beyond exact duplicates)
+    private func findSimilarFiles(_ files: [FileInfo], excludingDuplicates duplicates: [String: [FileInfo]]) -> [[FileInfo]] {
+        var similarGroups: [[FileInfo]] = []
+        var processed = Set<URL>()
+        let duplicateURLs = Set(duplicates.values.flatMap { $0 }.map { $0.url })
+        
+        // 1. Similar documents: same base name, different versions (e.g., report.docx, report_v2.pdf)
+        let documents = files.filter {
+            FileExtensions.documentExtensions.contains($0.extension) && !duplicateURLs.contains($0.url)
+        }
+        let docGroups = groupByBaseName(documents)
+        for group in docGroups where group.count > 1 {
+            let sorted = group.sorted { $0.modificationDate > $1.modificationDate }
+            if !sorted.isEmpty && !processed.contains(sorted[0].url) {
+                similarGroups.append(sorted)
+                for f in sorted { processed.insert(f.url) }
+            }
+        }
+        
+        // 2. Similar images: perceptual similarity via Vision framework
+        let images = files.filter {
+            FileExtensions.imageExtensions.contains($0.extension) && !duplicateURLs.contains($0.url)
+        }
+        for (i, img1) in images.enumerated() where !processed.contains(img1.url) {
+            var group = [img1]
+            processed.insert(img1.url)
+            for img2 in images[(i+1)...] where !processed.contains(img2.url) {
+                if areSimilarImages(img1, img2) {
+                    group.append(img2)
+                    processed.insert(img2.url)
+                }
+            }
+            if group.count > 1 {
+                similarGroups.append(group.sorted { $0.modificationDate > $1.modificationDate })
+            }
+        }
+        
+        return similarGroups
+    }
+    
+    private func groupByBaseName(_ files: [FileInfo]) -> [[FileInfo]] {
+        var groups: [String: [FileInfo]] = [:]
+        for file in files {
+            let base = file.url.deletingPathExtension().lastPathComponent
+                .lowercased()
+                .replacingOccurrences(of: #"[-_\s]*(v\d+|copy|final|draft|old|new)$"#, with: "", options: .regularExpression)
+            let key = base.trimmingCharacters(in: .whitespaces)
+            if !key.isEmpty {
+                groups[key, default: []].append(file)
+            }
+        }
+        return Array(groups.values).filter { $0.count > 1 }
+    }
+    
+    private func areSimilarImages(_ a: FileInfo, _ b: FileInfo) -> Bool {
+        // Similar size (within 20%) as quick filter
+        let sizeRatio = Double(min(a.size, b.size)) / Double(max(a.size, b.size))
+        guard sizeRatio > 0.8 else { return false }
+        
+        // Use Vision framework for perceptual similarity when available
+        guard let data1 = try? Data(contentsOf: a.url),
+              let data2 = try? Data(contentsOf: b.url),
+              let img1 = NSImage(data: data1),
+              let img2 = NSImage(data: data2),
+              let cgImg1 = img1.cgImage(forProposedRect: nil, context: nil, hints: nil),
+              let cgImg2 = img2.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
+            return sizeRatio > 0.95  // Fallback: very similar size
+        }
+        
+        let req1 = VNGenerateImageFeaturePrintRequest()
+        let req2 = VNGenerateImageFeaturePrintRequest()
+        let handler1 = VNImageRequestHandler(cgImage: cgImg1, options: [:])
+        let handler2 = VNImageRequestHandler(cgImage: cgImg2, options: [:])
+        
+        do {
+            try handler1.perform([req1])
+            try handler2.perform([req2])
+            guard let fp1 = req1.results?.first as? VNFeaturePrintObservation,
+                  let fp2 = req2.results?.first as? VNFeaturePrintObservation else {
+                return sizeRatio > 0.95
+            }
+            var distance: Float = 1
+            try fp1.computeDistance(&distance, to: fp2)
+            return distance < 0.5  // Perceptual similarity threshold
+        } catch {
+            return sizeRatio > 0.95
+        }
+    }
+    
     // MARK: - Calculate File Hash
     private func calculateFileHash(_ url: URL) -> String {
         do {
@@ -173,30 +266,64 @@ class FileScanner: ObservableObject {
     }
     
     // MARK: - Generate Suggested Actions
-    private func generateSuggestedActions(_ files: [FileInfo], duplicates: [String: [FileInfo]]) -> [CleanupAction] {
+    private func generateSuggestedActions(_ files: [FileInfo], duplicates: [String: [FileInfo]], similarFiles: [[FileInfo]], scannedDirectories: [URL]) -> [CleanupAction] {
         var actions: [CleanupAction] = []
+        let downloadsURL = fileManager.urls(for: .downloadsDirectory, in: .userDomainMask).first
+        let hoursThreshold = Double(DownloadsAutoSort.hoursThreshold) * 3600
+        
+        // Smart Tidy: Auto-Sort Downloads (files sitting 24+ hours)
+        if let downloads = downloadsURL {
+            for file in files {
+                guard file.url.path.hasPrefix(downloads.path),
+                      let folder = DownloadsAutoSort.extensionToFolder[file.extension.lowercased()] else { continue }
+                let hoursSinceCreation = Date().timeIntervalSince(file.creationDate)
+                guard hoursSinceCreation >= hoursThreshold else { continue }
+                let dest = "~/\(folder)"
+                let action = CleanupAction(
+                    file: file,
+                    action: .move,
+                    destination: dest,
+                    description: String(format: ActionDescriptions.autoSortDownload, "Downloads", folder),
+                    moveDirectly: true
+                )
+                actions.append(action)
+            }
+        }
         
         // Archive old files
         for file in files where file.isOld {
             let action = CleanupAction(
                 file: file,
                 action: .archive,
-                            destination: String(format: ArchivePaths.yearMonthPattern, Calendar.current.component(.year, from: Date()), Calendar.current.component(.month, from: Date())),
-            description: String(format: ActionDescriptions.archiveOldFile, file.daysSinceModified)
+                destination: String(format: ArchivePaths.yearMonthPattern, Calendar.current.component(.year, from: Date()), Calendar.current.component(.month, from: Date())),
+                description: String(format: ActionDescriptions.archiveOldFile, file.daysSinceModified)
             )
             actions.append(action)
         }
         
-        // Handle duplicates
+        // Handle exact duplicates
         for (_, duplicateGroup) in duplicates {
             let sortedDuplicates = duplicateGroup.sorted { $0.modificationDate > $1.modificationDate }
-            
             for duplicate in sortedDuplicates.dropFirst() {
                 let action = CleanupAction(
                     file: duplicate,
                     action: .delete,
-                                destination: SystemPaths.trashPath,
-            description: ActionDescriptions.deleteDuplicate
+                    destination: SystemPaths.trashPath,
+                    description: ActionDescriptions.deleteDuplicate
+                )
+                actions.append(action)
+            }
+        }
+        
+        // Smart Tidy: Similar files (keep best, delete others)
+        for group in similarFiles {
+            let sorted = group.sorted { $0.modificationDate > $1.modificationDate }
+            for similar in sorted.dropFirst() {
+                let action = CleanupAction(
+                    file: similar,
+                    action: .delete,
+                    destination: SystemPaths.trashPath,
+                    description: ActionDescriptions.deleteSimilar
                 )
                 actions.append(action)
             }
@@ -207,8 +334,8 @@ class FileScanner: ObservableObject {
             let action = CleanupAction(
                 file: file,
                 action: .compress,
-                            destination: SystemPaths.compressedPath,
-            description: String(format: ActionDescriptions.compressLargeFile, file.formattedSize)
+                destination: SystemPaths.compressedPath,
+                description: String(format: ActionDescriptions.compressLargeFile, file.formattedSize)
             )
             actions.append(action)
         }
