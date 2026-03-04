@@ -79,6 +79,7 @@ struct ResultsView: View {
         }
         .padding(.vertical, 8)
         .background(Color(.darkGray))
+        .accessibilityLabel("Summary")
     }
     
     // MARK: - Category Tabs
@@ -99,6 +100,7 @@ struct ResultsView: View {
         }
         .padding(.vertical, 8)
         .background(Color(.darkGray))
+        .accessibilityLabel("Categories")
         .onAppear {
             if selectedCategory == nil {
                 selectedCategory = FileCategory.allCases.first { scanResults.filesByCategory[$0]?.isEmpty == false }
@@ -132,6 +134,7 @@ struct ResultsView: View {
             Image(systemName: SystemIcons.folder)
                 .font(.system(size: 48))
                 .foregroundColor(.secondary)
+                .accessibilityHidden(true)
             
             Text("No files found")
                 .font(.headline)
@@ -144,6 +147,8 @@ struct ResultsView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(.darkGray))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("No files found. Select a different category or scan a different location.")
     }
 }
 
@@ -160,6 +165,7 @@ struct SummaryCard: View {
                 Image(systemName: icon)
                     .foregroundColor(color)
                     .font(.title3)
+                    .accessibilityHidden(true)
                 
                 Spacer()
             }
@@ -199,6 +205,7 @@ struct CategoryTab: View {
             HStack(spacing: 6) {
                 Image(systemName: category.icon)
                     .font(.caption)
+                    .accessibilityHidden(true)
                 
                 Text(category.rawValue)
                     .font(.caption)
@@ -219,6 +226,8 @@ struct CategoryTab: View {
         .buttonStyle(PlainButtonStyle())
         .accessibilityLabel("\(category.rawValue) category with \(fileCount) files")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityValue(isSelected ? "Selected" : "Not selected")
+        .accessibilityHint("Shows files in the \(category.rawValue) category.")
     }
 }
 
@@ -252,6 +261,7 @@ struct FileRowView: View {
                 .foregroundColor(file.category.color)
                 .font(.title3)
                 .frame(width: 24)
+                .accessibilityHidden(true)
             
             // File Info
             VStack(alignment: .leading, spacing: 4) {
@@ -309,15 +319,27 @@ struct FileRowView: View {
             Image(systemName: "chevron.right")
                 .font(.caption)
                 .foregroundColor(.secondary)
+                .accessibilityHidden(true)
         }
         .padding(.vertical, 4)
         .contentShape(Rectangle())
         .onTapGesture {
             onTap()
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(file.name), \(file.formattedSize), modified \(formatDate(file.modificationDate))")
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(file.name)
+        .accessibilityValue(accessibilityValue)
         .accessibilityHint("Double tap to view file details")
+    }
+
+    private var accessibilityValue: String {
+        var parts: [String] = [
+            file.formattedSize,
+            "modified \(formatDate(file.modificationDate))"
+        ]
+        if file.isOld { parts.append("Old") }
+        if file.isLarge { parts.append("Large") }
+        return parts.joined(separator: ", ")
     }
     
     private func iconForFile(_ file: FileInfo) -> String {
@@ -387,6 +409,7 @@ struct FileDetailView: View {
             Image(systemName: iconForFile(file))
                 .font(.system(size: 64))
                 .foregroundColor(file.category.color)
+                .accessibilityHidden(true)
             
             VStack(spacing: 8) {
                 Text(file.name)
@@ -407,6 +430,7 @@ struct FileDetailView: View {
         .padding()
         .background(Color(.darkGray))
         .cornerRadius(12)
+        .accessibilityElement(children: .combine)
     }
     
     // MARK: - File Properties
@@ -418,7 +442,7 @@ struct FileDetailView: View {
             
             VStack(spacing: 12) {
                 PropertyRow(title: "Size", value: file.formattedSize)
-                PropertyRow(title: "Type", value: file.formattedSize)
+                PropertyRow(title: "Type", value: fileTypeValue)
                 PropertyRow(title: "Created", value: formatDate(file.creationDate))
                 PropertyRow(title: "Modified", value: formatDate(file.modificationDate))
                 PropertyRow(title: "Location", value: file.url.deletingLastPathComponent().lastPathComponent)
@@ -428,6 +452,14 @@ struct FileDetailView: View {
                 }
             }
         }
+    }
+
+    private var fileTypeValue: String {
+        let ext = file.url.pathExtension.trimmingCharacters(in: .whitespacesAndNewlines)
+        if ext.isEmpty {
+            return file.category.rawValue
+        }
+        return ext.uppercased()
     }
     
     // MARK: - Quick Actions
@@ -524,6 +556,7 @@ struct PropertyRow: View {
             
             Spacer()
         }
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -540,6 +573,7 @@ struct QuickActionButton: View {
                 Image(systemName: icon)
                     .foregroundColor(color)
                     .font(.title3)
+                    .accessibilityHidden(true)
                 
                 Text(title)
                     .font(.subheadline)
@@ -550,6 +584,7 @@ struct QuickActionButton: View {
                 Image(systemName: "chevron.right")
                     .font(.caption)
                     .foregroundColor(.secondary)
+                    .accessibilityHidden(true)
             }
             .padding()
             .background(Color(.darkGray))
@@ -557,5 +592,6 @@ struct QuickActionButton: View {
         }
         .buttonStyle(PlainButtonStyle())
         .accessibilityLabel(title)
+        .accessibilityHint("Performs this quick action.")
     }
 } 

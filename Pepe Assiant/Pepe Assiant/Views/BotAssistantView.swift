@@ -71,6 +71,7 @@ struct BotAssistantView: View {
             Image(systemName: SystemIcons.sparkles)
                 .font(.title2)
                 .foregroundColor(.blue)
+                .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(AppConstants.appName)
@@ -81,6 +82,8 @@ struct BotAssistantView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(AppConstants.appName). \(AppConstants.appDescription)")
             
             Spacer()
             
@@ -92,11 +95,14 @@ struct BotAssistantView: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
+                .accessibilityLabel(UIText.undo)
+                .accessibilityValue("\(fileOperations.undoCount)")
+                .accessibilityHint("Reverts the most recent file operation.")
             }
         }
         .padding()
         .background(Color(NSColor.windowBackgroundColor))
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .contain)
         .accessibilityLabel(UIText.pepeAssistantHeader)
     }
     
@@ -121,6 +127,7 @@ struct BotAssistantView: View {
                 }
                 .padding()
             }
+            .accessibilityLabel("Conversation")
             .onChange(of: messages.count) { _, _ in
                 withAnimation {
                     proxy.scrollTo(messages.last?.id, anchor: .bottom)
@@ -135,6 +142,7 @@ struct BotAssistantView: View {
             HStack {
                 ProgressView()
                     .scaleEffect(0.8)
+                    .accessibilityHidden(true)
                 Text("\(UIText.scanning) \(fileScanner.currentScanLocation)...")
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -143,12 +151,14 @@ struct BotAssistantView: View {
             ProgressView(value: fileScanner.scanProgress)
                 .progressViewStyle(LinearProgressViewStyle())
                 .frame(height: 4)
+                .accessibilityHidden(true)
         }
         .padding()
         .background(Color(.darkGray))
         .cornerRadius(12)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(UIText.scanningProgress): \(Int(fileScanner.scanProgress * 100))% \(UIText.complete)")
+        .accessibilityLabel(UIText.scanningProgress)
+        .accessibilityValue("\(Int(fileScanner.scanProgress * 100))% \(UIText.complete)")
     }
     
     // MARK: - Processing Progress View
@@ -157,6 +167,7 @@ struct BotAssistantView: View {
             HStack {
                 ProgressView()
                     .scaleEffect(0.8)
+                    .accessibilityHidden(true)
                 Text(fileOperations.currentOperation)
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -165,12 +176,14 @@ struct BotAssistantView: View {
             ProgressView(value: fileOperations.processingProgress)
                 .progressViewStyle(LinearProgressViewStyle())
                 .frame(height: 4)
+                .accessibilityHidden(true)
         }
         .padding()
         .background(Color(.darkGray))
         .cornerRadius(12)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(UIText.processingProgress): \(Int(fileOperations.processingProgress * 100))% \(UIText.complete)")
+        .accessibilityLabel(UIText.processingProgress)
+        .accessibilityValue("\(Int(fileOperations.processingProgress * 100))% \(UIText.complete)")
     }
     
     // MARK: - Input Area
@@ -182,14 +195,17 @@ struct BotAssistantView: View {
                     sendMessage()
                 }
                 .accessibilityLabel(UIText.messageInputField)
+                .accessibilityHint("Type your message to the assistant.")
             
             Button(action: sendMessage) {
                 Image(systemName: SystemIcons.arrowUpCircleFill)
                     .font(.title2)
                     .foregroundColor(.blue)
+                    .accessibilityHidden(true)
             }
             .disabled(userInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             .accessibilityLabel(UIText.sendMessage)
+            .accessibilityHint("Sends your message.")
         }
         .padding()
         .background(Color(NSColor.windowBackgroundColor))
@@ -361,6 +377,9 @@ struct ChatBubbleView: View {
             .foregroundColor(.white)
             .cornerRadius(18)
             .cornerRadius(4)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("You")
+            .accessibilityValue(message.text)
     }
     
     private var botBubble: some View {
@@ -371,17 +390,22 @@ struct ChatBubbleView: View {
                 .foregroundColor(.primary)
                 .cornerRadius(18)
                 .cornerRadius(4)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Assistant")
+                .accessibilityValue(message.text)
             
             if let action = message.action {
                 actionButton(for: action)
             }
         }
+        .accessibilityElement(children: .contain)
     }
     
     private func actionButton(for action: BotAssistantView.ChatMessage.BotAction) -> some View {
         Button(action: { onAction(action) }) {
             HStack {
                 Image(systemName: iconForAction(action))
+                    .accessibilityHidden(true)
                 Text(textForAction(action))
             }
             .padding(.horizontal, 12)
@@ -392,6 +416,22 @@ struct ChatBubbleView: View {
         }
         .buttonStyle(PlainButtonStyle())
         .accessibilityLabel(textForAction(action))
+        .accessibilityHint(accessibilityHintForAction(action))
+    }
+
+    private func accessibilityHintForAction(_ action: BotAssistantView.ChatMessage.BotAction) -> String {
+        switch action {
+        case .scanDesktop:
+            return "Scans your Desktop for files to organize."
+        case .scanDownloads:
+            return "Scans your Downloads for files to organize."
+        case .scanDocuments:
+            return "Scans your Documents for files to organize."
+        case .cleanAll:
+            return "Reviews and cleans up suggested items."
+        case .showResults:
+            return "Shows details of the scan results."
+        }
     }
     
     private func iconForAction(_ action: BotAssistantView.ChatMessage.BotAction) -> String {
