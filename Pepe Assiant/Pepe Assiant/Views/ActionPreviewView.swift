@@ -45,6 +45,7 @@ struct ActionPreviewView: View {
                 Image(systemName: SystemIcons.checkmarkCircleFill)
                     .foregroundColor(.green)
                     .font(.title2)
+                    .accessibilityHidden(true)
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(UIText.readyToOrganize)
@@ -67,7 +68,8 @@ struct ActionPreviewView: View {
         .padding()
         .background(Color(.darkGray))
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(UIText.summary): \(selectedActions.count) \(UIText.of) \(actions.count) \(UIText.actionsSelected)")
+        .accessibilityLabel(UIText.summary)
+        .accessibilityValue("\(selectedActions.count) \(UIText.of) \(actions.count) \(UIText.actionsSelected)")
     }
     
     // MARK: - Action Type Summary
@@ -82,6 +84,7 @@ struct ActionPreviewView: View {
                         Image(systemName: iconForActionType(actionType))
                             .foregroundColor(colorForActionType(actionType))
                             .font(.caption)
+                            .accessibilityHidden(true)
                         
                         Text("\(count)")
                             .font(.caption)
@@ -91,6 +94,9 @@ struct ActionPreviewView: View {
                     .padding(.vertical, 4)
                     .background(colorForActionType(actionType).opacity(0.1))
                     .cornerRadius(8)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(accessibilityLabelForActionType(actionType))
+                    .accessibilityValue("\(count)")
                 }
             }
         }
@@ -121,6 +127,9 @@ struct ActionPreviewView: View {
                     }
                     .font(.caption)
                     .foregroundColor(.blue)
+                    .accessibilityLabel(selectAll ? UIText.deselectAll : UIText.selectAll)
+                    .accessibilityValue("\(selectedActions.count) \(UIText.of) \(actions.count) \(UIText.actionsSelected)")
+                    .accessibilityHint("Selects or deselects all suggested actions.")
                 }
             }
         }
@@ -138,6 +147,7 @@ struct ActionPreviewView: View {
                 }
                 .buttonStyle(.bordered)
                 .frame(maxWidth: .infinity)
+                .accessibilityHint("Closes the preview without making changes.")
                 
                 Button("\(UIText.executeSelected) (\(selectedActions.count))") {
                     onExecute()
@@ -146,6 +156,7 @@ struct ActionPreviewView: View {
                 .buttonStyle(.borderedProminent)
                 .frame(maxWidth: .infinity)
                 .disabled(selectedActions.isEmpty)
+                .accessibilityHint("Executes the selected cleanup actions.")
             }
             .padding()
         }
@@ -198,6 +209,19 @@ struct ActionPreviewView: View {
             return .purple
         }
     }
+    
+    private func accessibilityLabelForActionType(_ actionType: CleanupAction.ActionType) -> String {
+        switch actionType {
+        case .move:
+            return "Move actions"
+        case .archive:
+            return "Archive actions"
+        case .delete:
+            return "Delete actions"
+        case .compress:
+            return "Compress actions"
+        }
+    }
 }
 
 // MARK: - Action Row View
@@ -207,65 +231,65 @@ struct ActionRowView: View {
     let onToggle: () -> Void
     
     var body: some View {
-        HStack(spacing: 12) {
-            // Selection Checkbox
-            Button(action: onToggle) {
+        Button(action: onToggle) {
+            HStack(spacing: 12) {
+                // Selection Checkbox
                 Image(systemName: isSelected ? SystemIcons.checkmarkCircleFill : SystemIcons.circle)
                     .foregroundColor(isSelected ? .blue : .secondary)
                     .font(.title3)
-            }
-            .buttonStyle(PlainButtonStyle())
-            .accessibilityLabel(isSelected ? UIText.deselectAction : UIText.selectAction)
-            
-            // Action Icon
-            Image(systemName: iconForAction(action.action))
-                .foregroundColor(colorForAction(action.action))
-                .font(.title3)
-                .frame(width: 24)
-            
-            // File Info
-            VStack(alignment: .leading, spacing: 4) {
-                Text(action.file.name)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .lineLimit(1)
+                    .accessibilityHidden(true)
                 
-                HStack(spacing: 8) {
-                    Text(action.description)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                // Action Icon
+                Image(systemName: iconForAction(action.action))
+                    .foregroundColor(colorForAction(action.action))
+                    .font(.title3)
+                    .frame(width: 24)
+                    .accessibilityHidden(true)
+                
+                // File Info
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(action.file.name)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .lineLimit(1)
                     
-                    Text("•")
+                    HStack(spacing: 8) {
+                        Text(action.description)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        Text("•")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        Text(action.file.formattedSize)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                Spacer()
+                
+                // Destination
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(action.destination)
                         .font(.caption)
                         .foregroundColor(.secondary)
+                        .lineLimit(1)
                     
-                    Text(action.file.formattedSize)
+                    Image(systemName: SystemIcons.arrowRight)
                         .font(.caption)
                         .foregroundColor(.secondary)
+                        .accessibilityHidden(true)
                 }
             }
-            
-            Spacer()
-            
-            // Destination
-            VStack(alignment: .trailing, spacing: 2) {
-                Text(action.destination)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .lineLimit(1)
-                
-                Image(systemName: SystemIcons.arrowRight)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
+            .padding(.vertical, 4)
+            .contentShape(Rectangle())
         }
-        .padding(.vertical, 4)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            onToggle()
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(action.file.name), \(action.description), \(action.file.formattedSize)")
+        .buttonStyle(PlainButtonStyle())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(action.file.name)
+        .accessibilityValue("\(action.description), \(action.file.formattedSize), \(isSelected ? "Selected" : "Not selected")")
         .accessibilityHint("Double tap to \(isSelected ? UIText.doubleTapToDeselect : UIText.doubleTapToSelect)")
     }
     
