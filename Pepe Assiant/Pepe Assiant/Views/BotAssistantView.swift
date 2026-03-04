@@ -4,6 +4,7 @@ import Foundation
 struct BotAssistantView: View {
     @StateObject private var fileScanner = FileScanner()
     @StateObject private var fileOperations = FileOperations()
+    @StateObject private var xcodeCleaner = XcodeCleaner()
     @State private var scanResults: ScanResults?
     @State private var selectedActions: Set<UUID> = []
     @State private var showingActionPreview = false
@@ -28,6 +29,7 @@ struct BotAssistantView: View {
             case scanDocuments
             case cleanAll
             case showResults
+            case clearDerivedData
         }
     }
     
@@ -249,6 +251,9 @@ struct BotAssistantView: View {
                 QuickChip(title: "Find Duplicates", icon: SystemIcons.docOnDoc) {
                     addBotMessage(BotMessages.duplicateMessage, action: .scanDesktop)
                 }
+                QuickChip(title: XcodeCleanerText.chipTitle, icon: SystemIcons.hammer) {
+                    clearDerivedData()
+                }
             }
             .padding(.horizontal, 4)
         }
@@ -287,6 +292,8 @@ struct BotAssistantView: View {
             addBotMessage(BotMessages.duplicateMessage, action: .scanDesktop)
         } else if lowercasedInput.contains(UserInputKeywords.archive) || lowercasedInput.contains(UserInputKeywords.old) {
             addBotMessage(BotMessages.archiveMessage, action: .scanDesktop)
+        } else if lowercasedInput.contains(UserInputKeywords.derivedData) || (lowercasedInput.contains(UserInputKeywords.xcode) && (lowercasedInput.contains(UserInputKeywords.clean) || lowercasedInput.contains("clear"))) {
+            addBotMessage(BotMessages.clearDerivedDataMessage, action: .clearDerivedData)
         } else {
             addBotMessage(BotMessages.helpMessage, action: nil)
         }
@@ -321,6 +328,8 @@ struct BotAssistantView: View {
                 }
             case .showResults:
                 showingResults = true
+            case .clearDerivedData:
+                clearDerivedData()
             }
         }
     }
@@ -367,6 +376,21 @@ struct BotAssistantView: View {
                 } else {
                     addBotMessage(BotMessages.cleanupErrorMessage, action: nil)
                 }
+            }
+        }
+    }
+    
+    // MARK: - Clear Derived Data (Xcode Cleaner)
+    private func clearDerivedData() {
+        Task {
+            let freed = await xcodeCleaner.clearDerivedData()
+            await MainActor.run {
+                if let bytes = freed, bytes > 0 {
+                    addBotMessage(String(format: XcodeCleanerText.successMessage, xcodeCleaner.formattedBytes(bytes)), action: nil)
+                } else if xcodeCleaner.lastError != nil {
+                    addBotMessage(String(format: XcodeCleanerText.errorMessage, xcodeCleaner.lastError ?? "Unknown error"), action: nil)
+                }
+                // If nil and no error, user cancelled—no message needed
             }
         }
     }
@@ -510,6 +534,8 @@ struct ChatBubbleView: View {
             return "Reviews and cleans up suggested items."
         case .showResults:
             return "Shows details of the scan results."
+        case .clearDerivedData:
+            return "Clears Xcode Derived Data to free disk space."
         }
     }
     
@@ -521,6 +547,8 @@ struct ChatBubbleView: View {
             return SystemIcons.checkmarkCircle
         case .showResults:
             return SystemIcons.listBullet
+        case .clearDerivedData:
+            return SystemIcons.hammer
         }
     }
     
@@ -536,6 +564,8 @@ struct ChatBubbleView: View {
             return ActionButtonLabels.cleanAll
         case .showResults:
             return ActionButtonLabels.viewResults
+        case .clearDerivedData:
+            return ActionButtonLabels.clearDerivedData
         }
     }
 }

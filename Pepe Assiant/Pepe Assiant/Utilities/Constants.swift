@@ -79,6 +79,7 @@ struct BotMessages {
     // Action Messages
     static let duplicateMessage = "I'll scan for duplicate files and help you clean them up. Let me check your desktop first..."
     static let archiveMessage = "I'll look for old files that can be archived. Let me scan your desktop..."
+    static let clearDerivedDataMessage = "I'll help you clear Xcode Derived Data to free up disk space. You'll be asked to select the DerivedData folder."
     
     // Results Messages
     static let foundFilesMessage = "I found %d files (%@) on your desktop. "
@@ -131,6 +132,7 @@ struct SystemIcons {
     static let folder = "folder"
     static let trash = "trash"
     static let zip = "zip"
+    static let hammer = "hammer.fill"
 }
 
 // MARK: - File Extensions
@@ -226,6 +228,8 @@ struct UserInputKeywords {
     static let duplicate = "duplicate"
     static let archive = "archive"
     static let old = "old"
+    static let derivedData = "derived data"
+    static let xcode = "xcode"
 }
 
 // MARK: - Action Button Labels
@@ -235,6 +239,16 @@ struct ActionButtonLabels {
     static let scanDocuments = "Scan Documents"
     static let cleanAll = "Clean All"
     static let viewResults = "View Results"
+    static let clearDerivedData = "Clear Derived Data"
+}
+
+// MARK: - Xcode Cleaner
+struct XcodeCleanerText {
+    static let chipTitle = "Clear Derived Data"
+    static let chipIcon = "hammer.fill"
+    static let successMessage = "Derived Data cleared! Freed %@ of disk space."
+    static let cancelMessage = "Clearing was cancelled."
+    static let errorMessage = "Could not clear Derived Data: %@"
 }
 
 // MARK: - Smart Tidy: Auto-Sort Downloads
