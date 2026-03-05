@@ -85,7 +85,7 @@ struct ResultsView: View {
             .padding(.horizontal)
         }
         .padding(.vertical, 8)
-        .background(Color(.controlBackgroundColor))
+        .background(AppTheme.headerGradient)
         .accessibilityLabel("Summary")
     }
     
@@ -106,7 +106,7 @@ struct ResultsView: View {
             .padding(.horizontal)
         }
         .padding(.vertical, 8)
-        .background(Color(.controlBackgroundColor))
+        .background(AppTheme.headerGradient)
         .accessibilityLabel("Categories")
         .onAppear {
             if selectedCategory == nil {
@@ -153,7 +153,7 @@ struct ResultsView: View {
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.controlBackgroundColor))
+        .background(AppTheme.surface)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("No files found. Select a different category or scan a different location.")
     }
@@ -192,9 +192,13 @@ struct SummaryCard: View {
         }
         .frame(width: 120, height: 80)
         .padding()
-        .background(Color(.controlBackgroundColor))
+        .background(AppTheme.cardBackground)
         .cornerRadius(12)
-        .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(AppTheme.borderLight, lineWidth: 1)
+        )
+        .shadow(color: AppTheme.primary.opacity(0.08), radius: 4, x: 0, y: 2)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(title): \(value)")
     }
@@ -226,7 +230,7 @@ struct CategoryTab: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(isSelected ? category.color.opacity(0.2) : Color(.controlBackgroundColor))
+            .background(isSelected ? category.color.opacity(0.2) : AppTheme.cardBackground)
             .foregroundColor(isSelected ? category.color : .primary)
             .cornerRadius(20)
         }
@@ -435,8 +439,12 @@ struct FileDetailView: View {
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(Color(.controlBackgroundColor))
+        .background(AppTheme.cardBackground)
         .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(AppTheme.borderLight, lineWidth: 1)
+        )
         .accessibilityElement(children: .combine)
     }
     
@@ -594,8 +602,12 @@ struct QuickActionButton: View {
                     .accessibilityHidden(true)
             }
             .padding()
-            .background(Color(.controlBackgroundColor))
+            .background(AppTheme.cardBackground)
             .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(AppTheme.borderLight, lineWidth: 1)
+            )
         }
         .buttonStyle(PlainButtonStyle())
         .accessibilityLabel(title)
