@@ -10,9 +10,9 @@ import SwiftUI
 
 // MARK: - App Information
 struct AppConstants {
-    static let appName = "Pepe Assistant"
+    static let appName = "NeatOS"
     static let appDescription = "Your friendly file organization bot"
-    static let appTagline = "Hi! I'm Pepe, your file organization assistant. I can help you clean up your desktop, organize downloads, find duplicates, and archive old files. Just tell me what you'd like to do!"
+    static let appTagline = "Hi! I'm NeatOS, your file organization assistant. I can help you clean up your desktop, organize downloads, find duplicates, and archive old files. Just tell me what you'd like to do!"
 }
 
 // MARK: - UI Text
@@ -50,7 +50,7 @@ struct UIText {
     static let of = "of"
     
     // Accessibility
-    static let pepeAssistantHeader = "Pepe Assistant header with undo button"
+    static let pepeAssistantHeader = "NeatOS header with undo button"
     static let scanningProgress = "Scanning progress"
     static let processingProgress = "Processing progress"
     static let messageInputField = "Message input field"
@@ -66,7 +66,7 @@ struct UIText {
 // MARK: - Bot Messages
 struct BotMessages {
     // Greeting and Help
-    static let welcomeMessage = "Hi! I'm Pepe, your file organization assistant. I can help you clean up your desktop, organize downloads, find duplicates, and archive old files. Just tell me what you'd like to do!"
+    static let welcomeMessage = "Hi! I'm NeatOS, your file organization assistant. I can help you clean up your desktop, organize downloads, find duplicates, and archive old files. Just tell me what you'd like to do!"
     static let helpMessage = "I can help you organize your files! Try saying 'clean my desktop', 'scan downloads', or 'find duplicates'."
     static let chooseLocationMessage = "I can help clean your desktop, downloads, or documents. Which would you like me to organize?"
     

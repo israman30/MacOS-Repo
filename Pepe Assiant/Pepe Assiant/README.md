@@ -1,4 +1,4 @@
-# Pepe Assistant
+# NeatOS
 
 **Your friendly macOS file organization bot.** Transform messy desktops and file systems into organized spaces with natural language commands and smart cleanup actions.
 
@@ -19,7 +19,7 @@
 
 ## Overview
 
-Pepe Assistant (also known as **NeatOS** in the app display) is a native macOS application built with SwiftUI that helps you organize, clean, and archive files through a conversational interface. Simply type what you want—"clean my desktop," "find duplicates," "archive old files"—and Pepe suggests and executes smart cleanup actions with full undo support.
+NeatOS is a native macOS application built with SwiftUI that helps you organize, clean, and archive files through a conversational interface. Simply type what you want—"clean my desktop," "find duplicates," "archive old files"—and NeatOS suggests and executes smart cleanup actions with full undo support.
 
 ---
 
@@ -109,7 +109,7 @@ Pepe Assistant (also known as **NeatOS** in the app display) is a native macOS a
 - **Xcode Cleaner** — Clear Derived Data to reclaim disk space
 - **Smart Tidy** — Downloads auto-sort with configurable rules
 - **Vision-based similarity** — Image similarity detection via `VNGenerateImageFeaturePrintRequest`
-- **Pepe menu** — Dedicated menu with keyboard shortcuts
+- **NeatOS menu** — Dedicated menu with keyboard shortcuts
 - **Memory Guard** — RAM monitoring module (available for future integration)
 
 ### Version Info
@@ -125,7 +125,7 @@ Pepe Assistant (also known as **NeatOS** in the app display) is a native macOS a
 
 ### Getting Started
 
-1. **Launch the app** — Open Pepe Assistant
+1. **Launch the app** — Open NeatOS
 2. **Type your request** — Use natural language (e.g., "clean my desktop")
 3. **Use quick chips** — Or tap Desktop, Downloads, Documents, Find Duplicates, Clear Derived Data
 4. **Review suggested actions** — Preview what will happen
@@ -161,7 +161,7 @@ Pepe Assistant (also known as **NeatOS** in the app display) is a native macOS a
 
 ```
 Pepe Assiant/
-├── Pepe_AssiantApp.swift       # App entry point, Pepe menu
+├── Pepe_AssiantApp.swift       # App entry point, NeatOS menu
 ├── ContentView.swift            # Root view
 ├── ResultsView.swift            # Scan results display
 ├── Pepe_Assiant.entitlements   # Sandbox entitlements
@@ -207,7 +207,7 @@ Pepe Assiant/
 
 ## Contributing
 
-We welcome contributions to Pepe Assistant. Please read the following guidelines before submitting.
+We welcome contributions to NeatOS. Please read the following guidelines before submitting.
 
 ### Code of Conduct
 
@@ -252,8 +252,8 @@ We welcome contributions to Pepe Assistant. Please read the following guidelines
 
 © 2025 Israel Manzo. All rights reserved.
 
-This project is developed as a demonstration of macOS file management capabilities using SwiftUI and native macOS APIs. The Pepe Assistant name and branding are part of this project.
+This project is developed as a demonstration of macOS file management capabilities using SwiftUI and native macOS APIs. The NeatOS name and branding are part of this project.
 
 ---
 
-**Pepe Assistant** — Making file organization as easy as having a conversation! 🗂️✨
+**NeatOS** — Making file organization as easy as having a conversation! 🗂️✨

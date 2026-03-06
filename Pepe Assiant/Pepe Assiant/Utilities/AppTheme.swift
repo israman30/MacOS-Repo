@@ -2,7 +2,7 @@
 //  AppTheme.swift
 //  Pepe Assiant
 //
-//  Friendly, vibrant theme for Pepe Assistant
+//  Friendly, vibrant theme for NeatOS
 //
 
 import SwiftUI

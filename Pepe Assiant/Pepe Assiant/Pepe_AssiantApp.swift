@@ -16,11 +16,11 @@ struct Pepe_AssiantApp: App {
                 .background(AppTheme.surface)
                 .tint(AppTheme.primary)
         }
-//        .windowTitle("Pepe Assistant")
+//        .windowTitle("NeatOS")
         .windowResizability(.contentSize)
         .defaultSize(width: 1000, height: 700)
         .commands {
-            CommandMenu("Pepe") {
+            CommandMenu("NeatOS") {
                 Button("Scan Desktop") {
                     NotificationCenter.default.post(name: .pepeScanDesktop, object: nil)
                 }
