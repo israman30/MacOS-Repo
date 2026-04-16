@@ -5,6 +5,7 @@ struct BotAssistantView: View {
     @StateObject private var fileScanner = FileScanner()
     @StateObject private var fileOperations = FileOperations()
     @StateObject private var xcodeCleaner = XcodeCleaner()
+    @StateObject private var folderAccess = FolderAccessController()
     @State private var scanResults: ScanResults?
     @State private var selectedActions: Set<UUID> = []
     @State private var showingActionPreview = false
@@ -86,6 +87,8 @@ struct BotAssistantView: View {
                 selectedActions: $selectedActions,
                 onExecute: executeSelectedActions
             )
+            .frame(minWidth: 820, idealWidth: 980, maxWidth: .infinity,
+                   minHeight: 640, idealHeight: 740, maxHeight: .infinity)
         }
         .sheet(isPresented: $showingResults) {
             ResultsView(scanResults: scanResults ?? ScanResults(
@@ -98,6 +101,8 @@ struct BotAssistantView: View {
                 suggestedActions: []
             ))
             .environmentObject(fileOperations)
+            .frame(minWidth: 980, idealWidth: 1120, maxWidth: .infinity,
+                   minHeight: 680, idealHeight: 780, maxHeight: .infinity)
         }
     }
     
@@ -447,11 +452,11 @@ struct BotAssistantView: View {
         Task {
             switch action {
             case .scanDesktop:
-                await scanDirectory(getDesktopURL())
+                await scanKnownFolder(.desktop)
             case .scanDownloads:
-                await scanDirectory(getDownloadsURL())
+                await scanKnownFolder(.downloads)
             case .scanDocuments:
-                await scanDirectory(getDocumentsURL())
+                await scanKnownFolder(.documents)
             case .cleanAll:
                 if let results = scanResults {
                     selectedActions = Set(results.suggestedActions.map { $0.id })
@@ -463,6 +468,17 @@ struct BotAssistantView: View {
                 clearDerivedData()
             }
         }
+    }
+    
+    // MARK: - Scan Known Folder (Sandbox Permission)
+    @MainActor
+    private func scanKnownFolder(_ folder: FolderAccessController.KnownFolder) async {
+        let folderURL = folderAccess.ensureAccess(to: folder)
+        guard let folderURL else {
+            addBotMessage(String(format: BotMessages.folderAccessCancelledMessage, folder.displayName), action: nil)
+            return
+        }
+        await scanDirectory(folderURL)
     }
     
     // MARK: - Scan Directory
@@ -550,18 +566,8 @@ struct BotAssistantView: View {
         messages.append(welcomeMessage)
     }
     
-    // MARK: - Get Directory URLs
-    private func getDesktopURL() -> URL {
-        fileManager.urls(for: .desktopDirectory, in: .userDomainMask).first!
-    }
-    
-    private func getDownloadsURL() -> URL {
-        fileManager.urls(for: .downloadsDirectory, in: .userDomainMask).first!
-    }
-    
-    private func getDocumentsURL() -> URL {
-        fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
-    }
+    // NOTE: Folder URLs are now requested via `FolderAccessController` to
+    // ensure sandbox permission (security-scoped bookmarks) is in place.
 }
 
 // MARK: - Quick Chip

@@ -280,7 +280,8 @@ class FileScanner: ObservableObject {
                       let folder = DownloadsAutoSort.extensionToFolder[file.extension.lowercased()] else { continue }
                 let hoursSinceCreation = Date().timeIntervalSince(file.creationDate)
                 guard hoursSinceCreation >= hoursThreshold else { continue }
-                let dest = "~/\(folder)"
+                // Sandbox-safe: keep organization inside Downloads (no writing to arbitrary ~/ paths).
+                let dest = downloads.appendingPathComponent(folder).path
                 let action = CleanupAction(
                     file: file,
                     action: .move,
@@ -294,10 +295,18 @@ class FileScanner: ObservableObject {
         
         // Archive old files
         for file in files where file.isOld {
+            // Sandbox-safe: archive beside the file (within the user-granted folder scope).
+            let year = Calendar.current.component(.year, from: Date())
+            let month = Calendar.current.component(.month, from: Date())
+            let yearMonth = String(format: "%d-%02d", year, month)
+            let archiveFolder = file.url
+                .deletingLastPathComponent()
+                .appendingPathComponent("NeatOS Archive")
+                .appendingPathComponent(yearMonth)
             let action = CleanupAction(
                 file: file,
                 action: .archive,
-                destination: String(format: ArchivePaths.yearMonthPattern, Calendar.current.component(.year, from: Date()), Calendar.current.component(.month, from: Date())),
+                destination: archiveFolder.path,
                 description: String(format: ActionDescriptions.archiveOldFile, file.daysSinceModified)
             )
             actions.append(action)
@@ -333,10 +342,14 @@ class FileScanner: ObservableObject {
         
         // Compress large files
         for file in files where file.isLarge {
+            // Sandbox-safe: compress into a folder next to the original file.
+            let compressedFolder = file.url
+                .deletingLastPathComponent()
+                .appendingPathComponent("NeatOS Compressed")
             let action = CleanupAction(
                 file: file,
                 action: .compress,
-                destination: SystemPaths.compressedPath,
+                destination: compressedFolder.path,
                 description: "Compress large \(file.largeFileTypeSingularLabel.lowercased()) (\(file.formattedSize))"
             )
             actions.append(action)

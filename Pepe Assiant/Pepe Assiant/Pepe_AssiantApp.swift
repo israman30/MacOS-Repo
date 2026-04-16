@@ -17,7 +17,7 @@ struct Pepe_AssiantApp: App {
                 .tint(AppTheme.primary)
         }
 //        .windowTitle("NeatOS")
-        .windowResizability(.contentSize)
+        .windowResizability(.automatic)
         .defaultSize(width: 1000, height: 700)
         .commands {
             CommandMenu("NeatOS") {

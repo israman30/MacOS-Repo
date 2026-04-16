@@ -81,6 +81,9 @@ struct BotMessages {
     static let archiveMessage = "I'll look for old files that can be archived. Let me scan your desktop..."
     static let clearDerivedDataMessage = "I'll help you clear Xcode Derived Data to free up disk space. You'll be asked to select the DerivedData folder."
     
+    // Permissions
+    static let folderAccessCancelledMessage = "Scan cancelled — NeatOS needs permission to access your %@ folder. Please try again and select it when prompted."
+    
     // Results Messages
     static let foundFilesMessage = "I found %d files (%@) in %@. "
     static let suggestActionsMessage = "I can suggest %d cleanup actions to organize your files. Would you like to see them?"

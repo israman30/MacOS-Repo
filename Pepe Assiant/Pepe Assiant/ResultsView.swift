@@ -6,8 +6,7 @@ struct ResultsView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var fileOperations: FileOperations
     @State private var selectedCategory: FileCategory?
-    @State private var showingFileDetail = false
-    @State private var selectedFile: FileInfo?
+    @State private var selectedFileID: UUID?
     @State private var sortField: FileSortField = .size
     @State private var sortDirection: FileSortDirection = .descending
     @State private var showingLargeFiles = false
@@ -27,9 +26,19 @@ struct ResultsView: View {
                 // Content Area
                 contentArea
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationTitle(UIText.scanResults)
 //            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                    }
+                    .accessibilityLabel("Close")
+                    .help("Close")
+                }
                 ToolbarItem(placement: .primaryAction) {
                     Button(UIText.done) {
                         dismiss()
@@ -37,14 +46,25 @@ struct ResultsView: View {
                 }
             }
         }
-        .sheet(isPresented: $showingFileDetail) {
-            if let file = selectedFile {
-                FileDetailView(file: file)
-            }
-        }
         .sheet(isPresented: $showingLargeFiles) {
             LargeFilesView(files: scanResults.largeFiles)
                 .environmentObject(fileOperations)
+        }
+        .onChange(of: sortField) { _, _ in
+            if let category = selectedCategory {
+                let files = scanResults.filesByCategory[category] ?? []
+                if selectedFileID == nil {
+                    selectedFileID = files.sorted(by: sortField, direction: sortDirection).first?.id
+                }
+            }
+        }
+        .onChange(of: sortDirection) { _, _ in
+            if let category = selectedCategory {
+                let files = scanResults.filesByCategory[category] ?? []
+                if selectedFileID == nil {
+                    selectedFileID = files.sorted(by: sortField, direction: sortDirection).first?.id
+                }
+            }
         }
     }
     
@@ -153,6 +173,8 @@ struct ResultsView: View {
                         isSelected: selectedCategory == category
                     ) {
                         selectedCategory = category
+                        let files = scanResults.filesByCategory[category] ?? []
+                        selectedFileID = files.sorted(by: sortField, direction: sortDirection).first?.id
                     }
                 }
             }
@@ -165,6 +187,10 @@ struct ResultsView: View {
             if selectedCategory == nil {
                 selectedCategory = FileCategory.allCases.first { scanResults.filesByCategory[$0]?.isEmpty == false }
             }
+            if let category = selectedCategory {
+                let files = scanResults.filesByCategory[category] ?? []
+                selectedFileID = files.sorted(by: sortField, direction: sortDirection).first?.id
+            }
         }
     }
     
@@ -174,20 +200,36 @@ struct ResultsView: View {
             if let category = selectedCategory,
                let files = scanResults.filesByCategory[category],
                !files.isEmpty {
-                FileListView(
-                    files: files,
-                    category: category,
-                    sortField: $sortField,
-                    sortDirection: $sortDirection,
-                    onFileSelected: { file in
-                        selectedFile = file
-                        showingFileDetail = true
+                HSplitView {
+                    FileListView(
+                        files: files,
+                        category: category,
+                        sortField: $sortField,
+                        sortDirection: $sortDirection,
+                        selectedFileID: $selectedFileID
+                    )
+                    .frame(minWidth: 460, idealWidth: 560, maxWidth: .infinity, maxHeight: .infinity)
+                    
+                    Divider()
+                    
+                    Group {
+                        if let id = selectedFileID,
+                           let file = files.first(where: { $0.id == id }) {
+                            FileDetailPanel(file: file)
+                                .environmentObject(fileOperations)
+                        } else {
+                            emptyDetailView
+                        }
                     }
-                )
+                    .frame(minWidth: 420, idealWidth: 520, maxWidth: .infinity, maxHeight: .infinity)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .layoutPriority(1)
             } else {
                 emptyStateView
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
     
     // MARK: - Empty State View
@@ -211,6 +253,27 @@ struct ResultsView: View {
         .background(AppTheme.surface)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("No files found. Select a different category or scan a different location.")
+    }
+    
+    private var emptyDetailView: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "sidebar.right")
+                .font(.system(size: 34))
+                .foregroundColor(.secondary)
+                .accessibilityHidden(true)
+            
+            Text("Select a file")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            
+            Text("Its details will appear here.")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(AppTheme.surface)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Select a file to view details.")
     }
 }
 
@@ -303,7 +366,7 @@ struct FileListView: View {
     let category: FileCategory
     @Binding var sortField: FileSortField
     @Binding var sortDirection: FileSortDirection
-    let onFileSelected: (FileInfo) -> Void
+    @Binding var selectedFileID: UUID?
     
     var body: some View {
         VStack(spacing: 10) {
@@ -311,21 +374,29 @@ struct FileListView: View {
                 .padding(.horizontal)
                 .padding(.top, 10)
             
-            List {
+            List(selection: $selectedFileID) {
                 ForEach(files.sorted(by: sortField, direction: sortDirection)) { file in
-                    FileRowView(file: file) {
-                        onFileSelected(file)
+                    FileRowView(
+                        file: file,
+                        isSelected: selectedFileID == file.id
+                    ) {
+                        selectedFileID = file.id
                     }
+                    .tag(file.id)
                 }
             }
             .listStyle(PlainListStyle())
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .layoutPriority(1)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 }
 
 // MARK: - File Row View
 struct FileRowView: View {
     let file: FileInfo
+    let isSelected: Bool
     let onTap: () -> Void
     
     var body: some View {
@@ -409,10 +480,13 @@ struct FileRowView: View {
                 .accessibilityHidden(true)
         }
         .padding(.vertical, 4)
+        .padding(.horizontal, 6)
         .contentShape(Rectangle())
         .onTapGesture {
             onTap()
         }
+        .background(isSelected ? AppTheme.primary.opacity(0.12) : Color.clear)
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(file.name)
         .accessibilityValue(accessibilityValue)
@@ -458,39 +532,36 @@ struct FileRowView: View {
     }
 }
 
-// MARK: - File Detail View
-struct FileDetailView: View {
+// MARK: - File Detail Panel (Right side)
+struct FileDetailPanel: View {
     let file: FileInfo
-    @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var fileOperations: FileOperations
     @State private var showingCompressionOptions = false
     @State private var operationError: String?
     
     var body: some View {
-        NavigationView {
+        VStack(spacing: 0) {
+            FilePreviewPane(url: file.url)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(AppTheme.surface)
+            
+            Rectangle()
+                .fill(AppTheme.borderLight)
+                .frame(height: 1)
+            
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    // File Header
                     fileHeader
-                    
-                    // File Properties
                     fileProperties
-                    
-                    // Quick Actions
                     quickActions
                 }
                 .padding()
             }
-            .navigationTitle("File Details")
-//            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .automatic) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 320)
+            .background(AppTheme.surface)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
     
     // MARK: - File Header
@@ -858,6 +929,8 @@ struct LargeFilesView: View {
                 Text(operationError ?? "Unknown error")
             }
         }
+        .frame(minWidth: 760, idealWidth: 920, maxWidth: .infinity,
+               minHeight: 620, idealHeight: 740, maxHeight: .infinity)
     }
     
     private func icon(for file: FileInfo) -> String {

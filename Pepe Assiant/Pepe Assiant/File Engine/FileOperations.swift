@@ -63,9 +63,21 @@ class FileOperations: ObservableObject {
     }
     
     /// Compresses to the destination folder and deletes the original file (space-saving).
-    func compressAndReplace(_ file: FileInfo, to destination: String = SystemPaths.compressedPath) async -> Bool {
+    /// `to:` defaults to an empty string to preserve the Swift "default argument" symbol
+    /// that Xcode may still reference during incremental builds.
+    func compressAndReplace(_ file: FileInfo, to destination: String = "") async -> Bool {
         await performSingleOperation("Compressing: \(file.name)") {
-            await self.compressFile(file, to: destination)
+            let finalDestination: String
+            if destination.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                finalDestination = file.url
+                    .deletingLastPathComponent()
+                    .appendingPathComponent("NeatOS Compressed")
+                    .path
+            } else {
+                finalDestination = destination
+            }
+            
+            return await self.compressFile(file, to: finalDestination)
         }
     }
     
