@@ -1,0 +1,48 @@
+{
+  "source": "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/Pepe Assiant/Pepe_AssiantApp.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "NeatOS",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 23
+        }
+      },
+      {
+        "comment": "",
+        "key": "Scan Desktop",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 24
+        }
+      },
+      {
+        "comment": "",
+        "key": "Scan Downloads",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 28
+        }
+      },
+      {
+        "comment": "",
+        "key": "Scan Documents",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 32
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ Last Action",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 42
+        }
+      }
+    ]
+  },
+  "version": 1
+}

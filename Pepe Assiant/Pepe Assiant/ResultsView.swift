@@ -6,6 +6,8 @@ struct ResultsView: View {
     @State private var selectedCategory: FileCategory?
     @State private var showingFileDetail = false
     @State private var selectedFile: FileInfo?
+    @State private var sortField: FileSortField = .size
+    @State private var sortDirection: FileSortDirection = .descending
     
     var body: some View {
         NavigationView {
@@ -124,6 +126,8 @@ struct ResultsView: View {
                 FileListView(
                     files: files,
                     category: category,
+                    sortField: $sortField,
+                    sortDirection: $sortDirection,
                     onFileSelected: { file in
                         selectedFile = file
                         showingFileDetail = true
@@ -246,17 +250,25 @@ struct CategoryTab: View {
 struct FileListView: View {
     let files: [FileInfo]
     let category: FileCategory
+    @Binding var sortField: FileSortField
+    @Binding var sortDirection: FileSortDirection
     let onFileSelected: (FileInfo) -> Void
     
     var body: some View {
-        List {
-            ForEach(files.sorted { $0.modificationDate > $1.modificationDate }) { file in
-                FileRowView(file: file) {
-                    onFileSelected(file)
+        VStack(spacing: 10) {
+            FileSortBar(field: $sortField, direction: $sortDirection)
+                .padding(.horizontal)
+                .padding(.top, 10)
+            
+            List {
+                ForEach(files.sorted(by: sortField, direction: sortDirection)) { file in
+                    FileRowView(file: file) {
+                        onFileSelected(file)
+                    }
                 }
             }
+            .listStyle(PlainListStyle())
         }
-        .listStyle(PlainListStyle())
     }
 }
 
@@ -285,6 +297,19 @@ struct FileRowView: View {
                     Text(file.formattedSize)
                         .font(.caption)
                         .foregroundColor(.secondary)
+                    
+                    if !file.extension.isEmpty {
+                        Text(file.extension.uppercased())
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(AppTheme.borderLight.opacity(0.18))
+                            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                            .accessibilityLabel("Extension")
+                            .accessibilityValue(file.extension)
+                    }
                     
                     Text("•")
                         .font(.caption)
@@ -470,11 +495,12 @@ struct FileDetailView: View {
     }
 
     private var fileTypeValue: String {
-        let ext = file.url.pathExtension.trimmingCharacters(in: .whitespacesAndNewlines)
+        let ext = file.extension.trimmingCharacters(in: .whitespacesAndNewlines)
         if ext.isEmpty {
             return file.category.rawValue
         }
-        return ext.uppercased()
+        let kind = file.formatDisplayName
+        return "\(kind) (.\(ext.lowercased()))"
     }
     
     // MARK: - Quick Actions
