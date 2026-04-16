@@ -82,11 +82,12 @@ struct BotMessages {
     static let clearDerivedDataMessage = "I'll help you clear Xcode Derived Data to free up disk space. You'll be asked to select the DerivedData folder."
     
     // Results Messages
-    static let foundFilesMessage = "I found %d files (%@) on your desktop. "
+    static let foundFilesMessage = "I found %d files (%@) in %@. "
     static let suggestActionsMessage = "I can suggest %d cleanup actions to organize your files. Would you like to see them?"
     static let alreadyOrganizedMessage = "Everything looks pretty organized already!"
     static let cleanupSuccessMessage = "Great! I've completed the cleanup. Your files are now better organized. You can undo any changes if needed."
     static let cleanupErrorMessage = "I encountered some issues while cleaning up. Some files may not have been processed. You can try again or check the results."
+    static let largeFilesFoundMessage = "I also found %d large file(s) (≥ %@)."
 }
 
 // MARK: - File Categories
@@ -161,6 +162,7 @@ struct ActionTypes {
     static let archive = "archive"
     static let delete = "delete"
     static let compress = "compress"
+    static let compressCopy = "compressCopy"
 }
 
 // MARK: - Action Descriptions
@@ -270,6 +272,22 @@ struct DownloadsAutoSort {
         "m4a": "Audio", "flac": "Audio", "zip": "Archives", "rar": "Archives", "7z": "Archives",
         "dmg": "Archives", "tar": "Archives", "gz": "Archives"
     ]
+}
+
+// MARK: - Large Files
+struct LargeFileRules {
+    /// Stored as megabytes to keep UI/user defaults simple.
+    static let thresholdMBKey = "NeatOS.largeFileThresholdMB"
+    static let defaultThresholdMB: Int = 500
+    
+    static var thresholdMB: Int {
+        let value = UserDefaults.standard.integer(forKey: thresholdMBKey)
+        return value > 0 ? value : defaultThresholdMB
+    }
+    
+    static var thresholdBytes: Int64 {
+        Int64(thresholdMB) * 1024 * 1024
+    }
 }
 
 // MARK: - Menu Notifications (for keyboard shortcuts)

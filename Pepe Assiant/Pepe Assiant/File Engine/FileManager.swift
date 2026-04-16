@@ -73,7 +73,62 @@ struct FileInfo: Identifiable, Hashable {
     }
     
     var isLarge: Bool {
-        size > 500 * 1024 * 1024 // 500MB
+        size >= LargeFileRules.thresholdBytes
+    }
+}
+
+// MARK: - Large File Display Helpers
+extension FileInfo {
+    enum LargeFileKind: String {
+        case photos = "Photos"
+        case books = "Books"
+        case documents = "Documents"
+        case videos = "Videos"
+        case audio = "Audio"
+        case archives = "Archives"
+        case other = "Files"
+        
+        var singularLabel: String {
+            switch self {
+            case .photos: return "Photo"
+            case .books: return "Book"
+            case .documents: return "Document"
+            case .videos: return "Video"
+            case .audio: return "Audio"
+            case .archives: return "Archive"
+            case .other: return "File"
+            }
+        }
+    }
+    
+    var largeFileKind: LargeFileKind {
+        switch category {
+        case .images, .screenshots:
+            return .photos
+        case .videos:
+            return .videos
+        case .audio:
+            return .audio
+        case .archives:
+            return .archives
+        case .documents:
+            let ext = self.extension.lowercased()
+            if ["epub", "mobi", "azw", "azw3"].contains(ext) { return .books }
+            // PDFs are often books; label them as "Books" to match user expectation.
+            if ext == "pdf" { return .books }
+            return .documents
+        case .downloads, .unknown:
+            return .other
+        }
+    }
+    
+    /// Short, user-friendly "type" label for large-file notifications.
+    var largeFileTypeLabel: String {
+        largeFileKind.rawValue
+    }
+    
+    var largeFileTypeSingularLabel: String {
+        largeFileKind.singularLabel
     }
 }
 

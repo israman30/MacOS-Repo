@@ -70,7 +70,9 @@ class FileScanner: ObservableObject {
         
         var files: [FileInfo] = []
         
-        for case let fileURL as URL in enumerator {
+        // Use `nextObject()` instead of `Sequence` iteration to avoid Swift 6 async-context
+        // restrictions around `makeIterator` on ObjC-backed enumerators.
+        while let fileURL = enumerator.nextObject() as? URL {
             guard fileURL.hasDirectoryPath == false else { continue }
             
             do {
@@ -335,7 +337,7 @@ class FileScanner: ObservableObject {
                 file: file,
                 action: .compress,
                 destination: SystemPaths.compressedPath,
-                description: String(format: ActionDescriptions.compressLargeFile, file.formattedSize)
+                description: "Compress large \(file.largeFileTypeSingularLabel.lowercased()) (\(file.formattedSize))"
             )
             actions.append(action)
         }

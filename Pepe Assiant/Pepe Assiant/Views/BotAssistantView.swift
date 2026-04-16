@@ -97,6 +97,7 @@ struct BotAssistantView: View {
                 largeFiles: [],
                 suggestedActions: []
             ))
+            .environmentObject(fileOperations)
         }
     }
     
@@ -470,17 +471,30 @@ struct BotAssistantView: View {
         
         await MainActor.run {
             scanResults = results
-            showScanResults(results)
+            showScanResults(results, locationName: directory.lastPathComponent)
         }
     }
     
     // MARK: - Show Scan Results
-    private func showScanResults(_ results: ScanResults) {
+    private func showScanResults(_ results: ScanResults, locationName: String) {
         let fileCount = results.totalFiles
         let totalSize = results.formattedTotalSize
         let actionCount = results.suggestedActions.count
         
-        var message = String(format: BotMessages.foundFilesMessage, fileCount, totalSize)
+        var message = String(format: BotMessages.foundFilesMessage, fileCount, totalSize, locationName)
+        
+        if !results.largeFiles.isEmpty {
+            let threshold = ByteCountFormatter.string(fromByteCount: LargeFileRules.thresholdBytes, countStyle: .file)
+            message += "\n\n" + String(format: BotMessages.largeFilesFoundMessage, results.largeFiles.count, threshold)
+            
+            let top = results.largeFiles
+                .sorted { $0.size > $1.size }
+                .prefix(3)
+            
+            if !top.isEmpty {
+                message += "\n" + top.map { "• \($0.name) (\($0.formattedSize)) — \($0.largeFileTypeSingularLabel) (\($0.formatDisplayName))" }.joined(separator: "\n")
+            }
+        }
         
         if actionCount > 0 {
             message += String(format: BotMessages.suggestActionsMessage, actionCount)

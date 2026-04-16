@@ -1,19 +1,25 @@
 import SwiftUI
+import AppKit
 
 struct ResultsView: View {
     let scanResults: ScanResults
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var fileOperations: FileOperations
     @State private var selectedCategory: FileCategory?
     @State private var showingFileDetail = false
     @State private var selectedFile: FileInfo?
     @State private var sortField: FileSortField = .size
     @State private var sortDirection: FileSortDirection = .descending
+    @State private var showingLargeFiles = false
     
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
                 // Summary Cards
                 summaryCards
+                
+                // Large Files Banner
+                largeFilesBanner
                 
                 // Category Tabs
                 categoryTabs
@@ -35,6 +41,10 @@ struct ResultsView: View {
             if let file = selectedFile {
                 FileDetailView(file: file)
             }
+        }
+        .sheet(isPresented: $showingLargeFiles) {
+            LargeFilesView(files: scanResults.largeFiles)
+                .environmentObject(fileOperations)
         }
     }
     
@@ -89,6 +99,47 @@ struct ResultsView: View {
         .padding(.vertical, 8)
         .background(AppTheme.headerGradient)
         .accessibilityLabel("Summary")
+    }
+    
+    // MARK: - Large Files Banner
+    private var largeFilesBanner: some View {
+        Group {
+            if !scanResults.largeFiles.isEmpty {
+                HStack(spacing: 10) {
+                    Image(systemName: SystemIcons.arrowUpCircleFill)
+                        .foregroundColor(.purple)
+                        .accessibilityHidden(true)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Large files detected")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                        Text("\(scanResults.largeFiles.count) file(s) ≥ \(LargeFileRules.thresholdMB) MB")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Button("Review") {
+                        showingLargeFiles = true
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.purple)
+                    .controlSize(.small)
+                    .accessibilityLabel("Review large files")
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 10)
+                .background(Color.purple.opacity(0.08))
+                .overlay(
+                    Rectangle()
+                        .fill(AppTheme.borderLight)
+                        .frame(height: 1),
+                    alignment: .bottom
+                )
+            }
+        }
     }
     
     // MARK: - Category Tabs
@@ -411,6 +462,9 @@ struct FileRowView: View {
 struct FileDetailView: View {
     let file: FileInfo
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var fileOperations: FileOperations
+    @State private var showingCompressionOptions = false
+    @State private var operationError: String?
     
     var body: some View {
         NavigationView {
@@ -512,6 +566,14 @@ struct FileDetailView: View {
             
             VStack(spacing: 8) {
                 QuickActionButton(
+                    title: "Reveal in Finder",
+                    icon: "magnifyingglass",
+                    color: .teal
+                ) {
+                    NSWorkspace.shared.activateFileViewerSelecting([file.url])
+                }
+                
+                QuickActionButton(
                     title: "Move to Organized Folder",
                     icon: "folder",
                     color: .blue
@@ -535,7 +597,7 @@ struct FileDetailView: View {
                         icon: "zip",
                         color: .purple
                     ) {
-                        // Implement compress action
+                        showingCompressionOptions = true
                     }
                 }
                 
@@ -544,9 +606,36 @@ struct FileDetailView: View {
                     icon: "trash",
                     color: .red
                 ) {
-                    // Implement delete action
+                    Task {
+                        let ok = await fileOperations.moveToTrash(file)
+                        if !ok {
+                            operationError = "Could not move the file to Trash."
+                        }
+                    }
                 }
             }
+        }
+        .confirmationDialog("Compress \(file.name)", isPresented: $showingCompressionOptions, titleVisibility: .visible) {
+            Button("Compress (keep original)") {
+                Task {
+                    let ok = await fileOperations.compressKeepingOriginal(file)
+                    if !ok { operationError = "Could not compress the file." }
+                }
+            }
+            Button("Compress & Replace (delete original)", role: .destructive) {
+                Task {
+                    let ok = await fileOperations.compressAndReplace(file)
+                    if !ok { operationError = "Could not compress the file." }
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Choose how you want to compress this file.")
+        }
+        .alert("Operation failed", isPresented: Binding(get: { operationError != nil }, set: { if !$0 { operationError = nil } })) {
+            Button("OK", role: .cancel) { operationError = nil }
+        } message: {
+            Text(operationError ?? "Unknown error")
         }
     }
     
@@ -640,3 +729,151 @@ struct QuickActionButton: View {
         .accessibilityHint("Performs this quick action.")
     }
 } 
+
+// MARK: - Large Files View
+struct LargeFilesView: View {
+    let files: [FileInfo]
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var fileOperations: FileOperations
+    
+    @State private var operationError: String?
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 0) {
+                if fileOperations.isProcessing {
+                    VStack(spacing: 8) {
+                        ProgressView(value: fileOperations.processingProgress)
+                            .progressViewStyle(.linear)
+                            .tint(.purple)
+                        Text(fileOperations.currentOperation)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
+                    .background(AppTheme.surfaceElevated)
+                }
+                
+                List {
+                    Section {
+                        ForEach(files.sorted { $0.size > $1.size }) { file in
+                            HStack(spacing: 12) {
+                                Image(systemName: icon(for: file))
+                                    .foregroundColor(.purple)
+                                    .frame(width: 24)
+                                    .accessibilityHidden(true)
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(file.name)
+                                        .font(.subheadline)
+                                        .fontWeight(.medium)
+                                        .lineLimit(1)
+                                    
+                                    HStack(spacing: 8) {
+                                        Text(file.formattedSize)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                        
+                                        Text("•")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                        
+                                        Text(file.largeFileTypeSingularLabel)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                        
+                                        Text("•")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                        
+                                        Text(file.formatDisplayName)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                        
+                                        if !file.extension.isEmpty {
+                                            Text("•")
+                                                .font(.caption)
+                                                .foregroundColor(.secondary)
+                                            Text(file.extension.uppercased())
+                                                .font(.caption2)
+                                                .fontWeight(.semibold)
+                                                .foregroundColor(.secondary)
+                                                .padding(.horizontal, 6)
+                                                .padding(.vertical, 2)
+                                                .background(AppTheme.borderLight.opacity(0.18))
+                                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                        }
+                                    }
+                                }
+                                
+                                Spacer()
+                                
+                                Menu {
+                                    Button("Reveal in Finder") {
+                                        NSWorkspace.shared.activateFileViewerSelecting([file.url])
+                                    }
+                                    Button("Compress (keep original)") {
+                                        Task {
+                                            let ok = await fileOperations.compressKeepingOriginal(file)
+                                            if !ok { operationError = "Could not compress the file." }
+                                        }
+                                    }
+                                    Button("Compress & Replace (delete original)", role: .destructive) {
+                                        Task {
+                                            let ok = await fileOperations.compressAndReplace(file)
+                                            if !ok { operationError = "Could not compress the file." }
+                                        }
+                                    }
+                                    Divider()
+                                    Button("Move to Trash", role: .destructive) {
+                                        Task {
+                                            let ok = await fileOperations.moveToTrash(file)
+                                            if !ok { operationError = "Could not move the file to Trash." }
+                                        }
+                                    }
+                                } label: {
+                                    Image(systemName: "ellipsis.circle")
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    } header: {
+                        Text("Large Files")
+                    } footer: {
+                        Text("Threshold: \(LargeFileRules.thresholdMB) MB. ZIP compression may not significantly reduce already-compressed media like videos.")
+                    }
+                }
+                .listStyle(.inset)
+            }
+            .navigationTitle("Large Files")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+            .alert("Operation failed", isPresented: Binding(get: { operationError != nil }, set: { if !$0 { operationError = nil } })) {
+                Button("OK", role: .cancel) { operationError = nil }
+            } message: {
+                Text(operationError ?? "Unknown error")
+            }
+        }
+    }
+    
+    private func icon(for file: FileInfo) -> String {
+        switch file.largeFileKind {
+        case .photos:
+            return "photo"
+        case .videos:
+            return "video"
+        case .audio:
+            return "music.note"
+        case .books, .documents:
+            return "doc.text"
+        case .archives:
+            return "archivebox"
+        case .other:
+            return "doc"
+        }
+    }
+}
