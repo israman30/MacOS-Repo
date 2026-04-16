@@ -11,9 +11,14 @@ struct BotAssistantView: View {
     @State private var showingResults = false
     @State private var userInput = ""
     @State private var messages: [ChatMessage] = []
-    @State private var isProcessing = false
+    @State private var showQuickActions = true
+    @FocusState private var isInputFocused: Bool
     
     private let fileManager = FileManager.default
+    
+    private var isBusy: Bool {
+        fileScanner.isScanning || fileOperations.isProcessing
+    }
     
     // MARK: - Chat Message
     struct ChatMessage: Identifiable {
@@ -56,6 +61,9 @@ struct BotAssistantView: View {
         .background(AppTheme.surface)
         .onAppear {
             addWelcomeMessage()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                isInputFocused = true
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .pepeScanDesktop)) { _ in
             addBotMessage(BotMessages.scanDesktopMessage, action: .scanDesktop)
@@ -120,6 +128,13 @@ struct BotAssistantView: View {
             
             Spacer()
             
+            if isBusy {
+                StatusPill(
+                    text: fileScanner.isScanning ? "\(UIText.scanning) \(fileScanner.currentScanLocation)..." : fileOperations.currentOperation
+                )
+                .transition(.opacity)
+            }
+            
             if fileOperations.canUndo {
                 Button("\(UIText.undo) (\(fileOperations.undoCount))") {
                     Task {
@@ -149,7 +164,7 @@ struct BotAssistantView: View {
     private var chatArea: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(spacing: 16) {
+                LazyVStack(spacing: 12) {
                     ForEach(messages) { message in
                         ChatBubbleView(message: message) { action in
                             handleBotAction(action)
@@ -165,7 +180,8 @@ struct BotAssistantView: View {
                         processingProgressView
                     }
                 }
-                .padding()
+                .padding(.horizontal, 16)
+                .padding(.vertical, 14)
             }
             .accessibilityLabel("Conversation")
             .onChange(of: messages.count) { _, _ in
@@ -238,46 +254,60 @@ struct BotAssistantView: View {
     
     // MARK: - Input Area
     private var inputArea: some View {
-        VStack(spacing: 12) {
-            // Quick action chips
-            quickActionChips
-            
-            HStack(spacing: 12) {
-                TextField(UIText.messageInputPlaceholder, text: $userInput)
-                    .textFieldStyle(.plain)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(AppTheme.surfaceElevated)
-                    .cornerRadius(24)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 24)
-                            .stroke(AppTheme.border, lineWidth: 1)
-                    )
-                    .onSubmit {
-                        sendMessage()
-                    }
-                    .accessibilityLabel(UIText.messageInputField)
-                    .accessibilityHint("Type your message to the assistant.")
-                
-                Button(action: sendMessage) {
-                    let isEmpty = userInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                    if isEmpty {
-                        Image(systemName: SystemIcons.arrowUpCircleFill)
-                            .font(.title2)
-                            .foregroundStyle(Color.secondary)
-                            .accessibilityHidden(true)
-                    } else {
-                        Image(systemName: SystemIcons.arrowUpCircleFill)
-                            .font(.title2)
-                            .foregroundStyle(AppTheme.userBubbleGradient)
-                            .accessibilityHidden(true)
+        VStack(spacing: 10) {
+            DisclosureGroup(isExpanded: $showQuickActions) {
+                quickActionChips
+                    .padding(.top, 4)
+            } label: {
+                HStack(spacing: 8) {
+                    Text("Quick actions")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    if isBusy {
+                        Text("• Busy")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
                 }
+                .accessibilityLabel("Quick actions")
+            }
+            .disabled(isBusy)
+            
+            HStack(spacing: 10) {
+                messageField
+                
+                Button(action: sendMessage) {
+                    ZStack {
+                        Circle()
+                            .fill(
+                                canSend
+                                ? AppTheme.sendButtonGradient
+                                : LinearGradient(
+                                    colors: [Color.secondary.opacity(0.22), Color.secondary.opacity(0.22)],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                        Image(systemName: SystemIcons.arrowUp)
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(canSend ? .white : .secondary)
+                            .accessibilityHidden(true)
+                    }
+                    .frame(width: 34, height: 34)
+                }
                 .buttonStyle(.plain)
-                .disabled(userInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .disabled(!canSend)
                 .accessibilityLabel(UIText.sendMessage)
                 .accessibilityHint("Sends your message.")
+#if os(macOS)
+                .keyboardShortcut(.return, modifiers: [.command])
+#endif
             }
+            
+            Text("Tip: Press ⌘⏎ to send")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(16)
         .background(AppTheme.surface)
@@ -313,8 +343,54 @@ struct BotAssistantView: View {
         }
     }
     
+    private var canSend: Bool {
+        !isBusy && !userInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+    
+    private var messageField: some View {
+        Group {
+            if #available(macOS 13.0, *) {
+                TextField(UIText.messageInputPlaceholder, text: $userInput, axis: .vertical)
+                    .lineLimit(1...4)
+            } else {
+                TextField(UIText.messageInputPlaceholder, text: $userInput)
+            }
+        }
+        .textFieldStyle(.plain)
+        .focused($isInputFocused)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(AppTheme.surfaceElevated)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(AppTheme.border, lineWidth: 1)
+        )
+        .overlay(alignment: .trailing) {
+            if !userInput.isEmpty && !isBusy {
+                Button {
+                    userInput = ""
+                } label: {
+                    Image(systemName: SystemIcons.xmarkCircleFill)
+                        .foregroundColor(.secondary)
+                        .accessibilityHidden(true)
+                }
+                .buttonStyle(.plain)
+                .padding(.trailing, 10)
+                .accessibilityLabel("Clear message")
+            }
+        }
+        .disabled(isBusy)
+        .onSubmit {
+            sendMessage()
+        }
+        .accessibilityLabel(UIText.messageInputField)
+        .accessibilityHint("Type your message to the assistant.")
+    }
+    
     // MARK: - Send Message
     private func sendMessage() {
+        guard !isBusy else { return }
         let trimmedInput = userInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedInput.isEmpty else { return }
         
@@ -505,30 +581,78 @@ struct QuickChip: View {
     }
 }
 
+// MARK: - Status Pill
+private struct StatusPill: View {
+    let text: String
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            ProgressView()
+                .controlSize(.small)
+                .scaleEffect(0.85)
+                .accessibilityHidden(true)
+            Text(text)
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(AppTheme.surfaceElevated)
+        .clipShape(Capsule())
+        .overlay(
+            Capsule()
+                .stroke(AppTheme.borderLight, lineWidth: 1)
+        )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Status")
+        .accessibilityValue(text)
+    }
+}
+
 // MARK: - Chat Bubble View
 struct ChatBubbleView: View {
     let message: BotAssistantView.ChatMessage
     let onAction: (BotAssistantView.ChatMessage.BotAction) -> Void
     
+    private static let timeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateStyle = .none
+        f.timeStyle = .short
+        return f
+    }()
+    
     var body: some View {
-        HStack {
-            if message.isUser {
-                Spacer()
-                userBubble
-            } else {
-                botBubble
-                Spacer()
+        HStack(alignment: .bottom, spacing: 10) {
+            if message.isUser { Spacer(minLength: 24) }
+            
+            VStack(alignment: message.isUser ? .trailing : .leading, spacing: 4) {
+                if message.isUser {
+                    userBubble
+                } else {
+                    botBubble
+                }
+                
+                Text(Self.timeFormatter.string(from: message.timestamp))
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .accessibilityHidden(true)
             }
+            
+            if !message.isUser { Spacer(minLength: 24) }
         }
     }
     
     private var userBubble: some View {
         Text(message.text)
+            .textSelection(.enabled)
+            .fixedSize(horizontal: false, vertical: true)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .background(AppTheme.userBubbleGradient)
             .foregroundColor(.white)
-            .cornerRadius(18)
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .frame(maxWidth: 520, alignment: .trailing)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("You")
             .accessibilityValue(message.text)
@@ -537,13 +661,16 @@ struct ChatBubbleView: View {
     private var botBubble: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(message.text)
+                .textSelection(.enabled)
+                .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
                 .background(AppTheme.cardBackground)
                 .foregroundColor(.primary)
-                .cornerRadius(18)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .frame(maxWidth: 560, alignment: .leading)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 18)
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
                         .stroke(AppTheme.borderLight, lineWidth: 1)
                 )
                 .accessibilityElement(children: .ignore)

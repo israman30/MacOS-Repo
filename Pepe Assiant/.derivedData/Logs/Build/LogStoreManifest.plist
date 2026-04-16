@@ -5,6 +5,49 @@
 	<key>logFormatVersion</key>
 	<integer>12</integer>
 	<key>logs</key>
-	<dict/>
+	<dict>
+		<key>4819A715-C74E-43C9-83A1-C99D39D0D4E5</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>4819A715-C74E-43C9-83A1-C99D39D0D4E5.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>Pepe Assiant project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>Pepe Assiant</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Cleaning project Pepe Assiant with scheme Pepe Assiant and configuration Debug</string>
+			<key>timeStartedRecording</key>
+			<real>797969211.78752899</real>
+			<key>timeStoppedRecording</key>
+			<real>797969212.43605804</real>
+			<key>title</key>
+			<string>Cleaning project Pepe Assiant with scheme Pepe Assiant and configuration Debug</string>
+			<key>uniqueIdentifier</key>
+			<string>4819A715-C74E-43C9-83A1-C99D39D0D4E5</string>
+		</dict>
+	</dict>
 </dict>
 </plist>

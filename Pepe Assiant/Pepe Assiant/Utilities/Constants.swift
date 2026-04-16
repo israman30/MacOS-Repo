@@ -112,6 +112,8 @@ struct SystemIcons {
     static let listBullet = "list.bullet"
     static let arrowUpCircleFill = "arrow.up.circle.fill"
     static let arrowRight = "arrow.right"
+    static let arrowUp = "arrow.up"
+    static let xmarkCircleFill = "xmark.circle.fill"
     
     // File Types
     static let photo = "photo"
