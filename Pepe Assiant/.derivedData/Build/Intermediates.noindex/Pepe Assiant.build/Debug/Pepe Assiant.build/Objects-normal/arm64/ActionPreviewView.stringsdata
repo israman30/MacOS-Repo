@@ -7,7 +7,23 @@
         "key": "%lld %@ %lld %@",
         "location": {
           "startingColumn": 29,
-          "startingLine": 86
+          "startingLine": 92
+        }
+      },
+      {
+        "comment": "",
+        "key": "Close",
+        "location": {
+          "startingColumn": 41,
+          "startingLine": 33
+        }
+      },
+      {
+        "comment": "",
+        "key": "Close",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 34
         }
       },
       {
@@ -15,7 +31,7 @@
         "key": "Cancel",
         "location": {
           "startingColumn": 20,
-          "startingLine": 41
+          "startingLine": 47
         }
       },
       {
@@ -23,7 +39,7 @@
         "key": "Proceed",
         "location": {
           "startingColumn": 20,
-          "startingLine": 42
+          "startingLine": 48
         }
       },
       {
@@ -31,7 +47,7 @@
         "key": "%lld %@ %lld %@",
         "location": {
           "startingColumn": 26,
-          "startingLine": 67
+          "startingLine": 73
         }
       },
       {
@@ -39,7 +55,7 @@
         "key": "%lld",
         "location": {
           "startingColumn": 41,
-          "startingLine": 113
+          "startingLine": 119
         }
       },
       {
@@ -47,7 +63,7 @@
         "key": "%lld",
         "location": {
           "startingColumn": 30,
-          "startingLine": 103
+          "startingLine": 109
         }
       },
       {
@@ -55,7 +71,7 @@
         "key": "%lld %@ %lld %@",
         "location": {
           "startingColumn": 41,
-          "startingLine": 145
+          "startingLine": 151
         }
       },
       {
@@ -63,7 +79,7 @@
         "key": "Selects or deselects all suggested actions.",
         "location": {
           "startingColumn": 40,
-          "startingLine": 146
+          "startingLine": 152
         }
       },
       {
@@ -71,7 +87,7 @@
         "key": "Closes the preview without making changes.",
         "location": {
           "startingColumn": 36,
-          "startingLine": 164
+          "startingLine": 172
         }
       },
       {
@@ -79,7 +95,7 @@
         "key": "%@ (%lld)",
         "location": {
           "startingColumn": 24,
-          "startingLine": 166
+          "startingLine": 174
         }
       },
       {
@@ -87,7 +103,7 @@
         "key": "Executes the selected cleanup actions.",
         "location": {
           "startingColumn": 36,
-          "startingLine": 177
+          "startingLine": 185
         }
       },
       {
@@ -95,7 +111,7 @@
         "key": "%@, %@, %@",
         "location": {
           "startingColumn": 29,
-          "startingLine": 310
+          "startingLine": 318
         }
       },
       {
@@ -103,7 +119,7 @@
         "key": "Double tap to %@",
         "location": {
           "startingColumn": 28,
-          "startingLine": 311
+          "startingLine": 319
         }
       },
       {
@@ -111,7 +127,7 @@
         "key": "•",
         "location": {
           "startingColumn": 30,
-          "startingLine": 279
+          "startingLine": 287
         }
       }
     ]

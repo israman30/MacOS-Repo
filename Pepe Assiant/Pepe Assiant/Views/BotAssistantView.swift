@@ -200,32 +200,10 @@ struct BotAssistantView: View {
     
     // MARK: - Scanning Progress View
     private var scanningProgressView: some View {
-        VStack(spacing: 8) {
-            HStack {
-                ProgressView()
-                    .scaleEffect(0.8)
-                    .accessibilityHidden(true)
-                Text("\(UIText.scanning) \(fileScanner.currentScanLocation)...")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-            
-            ProgressView(value: fileScanner.scanProgress)
-                .progressViewStyle(LinearProgressViewStyle())
-                .tint(AppTheme.primary)
-                .frame(height: 6)
-                .accessibilityHidden(true)
-        }
-        .padding(16)
-        .background(AppTheme.cardBackground)
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(AppTheme.borderLight, lineWidth: 1)
+        ScanningProgressCard(
+            locationName: fileScanner.currentScanLocation,
+            progress: fileScanner.scanProgress
         )
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(UIText.scanningProgress)
-        .accessibilityValue("\(Int(fileScanner.scanProgress * 100))% \(UIText.complete)")
     }
     
     // MARK: - Processing Progress View
@@ -568,6 +546,60 @@ struct BotAssistantView: View {
     
     // NOTE: Folder URLs are now requested via `FolderAccessController` to
     // ensure sandbox permission (security-scoped bookmarks) is in place.
+}
+
+// MARK: - Scanning Progress Card
+struct ScanningProgressCard: View {
+    let locationName: String
+    let progress: Double
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack {
+                ProgressView()
+                    .scaleEffect(0.8)
+                    .accessibilityHidden(true)
+                Text("\(UIText.scanning) \(locationName)...")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            
+            ProgressView(value: progress)
+                .progressViewStyle(LinearProgressViewStyle())
+                .tint(AppTheme.primary)
+                .frame(height: 6)
+                .accessibilityHidden(true)
+        }
+        .padding(16)
+        .background(AppTheme.cardBackground)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(AppTheme.borderLight, lineWidth: 1)
+        )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(UIText.scanningProgress)
+        .accessibilityValue("\(Int(progress * 100))% \(UIText.complete)")
+    }
+}
+
+// MARK: - Previews
+struct ScanningProgressCard_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            ScanningProgressCard(locationName: "Downloads", progress: 0.12)
+                .padding()
+                .frame(width: 520)
+                .background(AppTheme.surface)
+                .preferredColorScheme(.light)
+            
+            ScanningProgressCard(locationName: "Desktop", progress: 0.68)
+                .padding()
+                .frame(width: 520)
+                .background(AppTheme.surface)
+                .preferredColorScheme(.dark)
+        }
+    }
 }
 
 // MARK: - Quick Chip
