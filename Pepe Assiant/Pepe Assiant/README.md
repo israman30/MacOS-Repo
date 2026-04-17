@@ -124,6 +124,7 @@ NeatOS is a native macOS application built with SwiftUI that helps you organize,
 - **NeatOS menu** — Dedicated menu with keyboard shortcuts
 - **Results improvements** — Split-view browser, sorting, and file preview pane
 - **Sandboxed scanning** — Security-scoped access + persisted folder bookmarks
+- **Unified error handling** — Shared `AppError` enum + SwiftUI `appErrorAlert(...)` helper for consistent user-facing errors
 - **Memory Guard** — RAM monitoring module (available for future integration)
 
 ### Version Info
@@ -175,11 +176,11 @@ NeatOS is a native macOS application built with SwiftUI that helps you organize,
 
 ```
 Pepe Assiant/
+├── Pepe Assiant.xcodeproj
 └── Pepe Assiant/
-    ├── Pepe_AssiantApp.swift       # App entry point, NeatOS menu
-    ├── ContentView.swift            # Root view
+    ├── Pepe_AssiantApp.swift        # App entry point, NeatOS menu + shortcuts
     ├── ResultsView.swift            # Scan results (split view + preview)
-    ├── Pepe_Assiant.entitlements   # Sandbox entitlements
+    ├── Pepe_Assiant.entitlements    # Sandbox entitlements
     │
     ├── Views/
     │   ├── BotAssistantView.swift   # Main chat interface
@@ -195,16 +196,20 @@ Pepe Assiant/
     │   └── FolderAccessController.swift # Security-scoped folder access
     │
     ├── Utilities/
-    │   ├── Constants.swift         # Strings, paths, config
-    │   └── AppTheme.swift          # Colors, gradients
+    │   ├── Constants.swift              # Strings, paths, config
+    │   ├── AppError.swift               # App-wide error type + normalization
+    │   ├── View+AppErrorAlert.swift     # SwiftUI alert convenience
+    │   └── AppTheme.swift               # Colors, gradients
     │
     ├── Xcode Cleaner/
-    │   └── XcodeCleaner.swift      # Derived Data cleanup
+    │   └── XcodeCleaner.swift           # Derived Data cleanup
     │
     ├── Memory Guard/
-    │   └── MemoryGuard.swift       # RAM monitoring (future)
+    │   └── MemoryGuard.swift            # RAM monitoring (future)
     │
-    └── Assets.xcassets             # App icon, accent color
+    ├── Unused Resource Hunter/          # Optional resource analysis tooling
+    │
+    └── Assets.xcassets                  # App icon, accent color
 ```
 
 ### Technologies
@@ -219,7 +224,7 @@ Pepe Assiant/
 ### Building
 
 1. Clone the repository
-2. Open `Pepe Assiant.xcodeproj` in Xcode
+2. Open `Pepe Assiant/Pepe Assiant.xcodeproj` in Xcode
 3. Build and run (⌘R)
 
 ---
@@ -269,7 +274,7 @@ We welcome contributions to NeatOS. Please read the following guidelines before 
 
 ## Copyright
 
-© 2025 Israel Manzo. All rights reserved.
+© 2026 Israel Manzo. All rights reserved.
 
 This project is developed as a demonstration of macOS file management capabilities using SwiftUI and native macOS APIs. The NeatOS name and branding are part of this project.
 
