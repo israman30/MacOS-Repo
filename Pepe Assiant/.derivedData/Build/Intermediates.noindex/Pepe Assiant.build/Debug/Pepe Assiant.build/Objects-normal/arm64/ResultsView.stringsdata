@@ -1,0 +1,408 @@
+{
+  "source": "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/Pepe Assiant/ResultsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Summary",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 121
+        }
+      },
+      {
+        "comment": "",
+        "key": "Categories",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 185
+        }
+      },
+      {
+        "comment": "",
+        "key": "Close",
+        "location": {
+          "startingColumn": 41,
+          "startingLine": 39
+        }
+      },
+      {
+        "comment": "",
+        "key": "Close",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 40
+        }
+      },
+      {
+        "comment": "",
+        "key": "Review",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 144
+        }
+      },
+      {
+        "comment": "",
+        "key": "Review large files",
+        "location": {
+          "startingColumn": 41,
+          "startingLine": 150
+        }
+      },
+      {
+        "comment": "",
+        "key": "Large files detected",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 134
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld file(s) ≥ %lld MB",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 137
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select a file to view details.",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 276
+        }
+      },
+      {
+        "comment": "",
+        "key": "No files found. Select a different category or scan a different location.",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 255
+        }
+      },
+      {
+        "comment": "",
+        "key": "No files found",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 243
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select a different category or scan a different location",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 247
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select a file",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 265
+        }
+      },
+      {
+        "comment": "",
+        "key": "Its details will appear here.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 269
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@: %@",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 321
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ category with %lld files",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 356
+        }
+      },
+      {
+        "comment": "",
+        "key": "Selected",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 358
+        }
+      },
+      {
+        "comment": "",
+        "key": "Not selected",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 358
+        }
+      },
+      {
+        "comment": "",
+        "key": "Shows files in the %@ category.",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 359
+        }
+      },
+      {
+        "comment": "",
+        "key": "(%lld)",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 344
+        }
+      },
+      {
+        "comment": "",
+        "key": "Double tap to view file details",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 493
+        }
+      },
+      {
+        "comment": "",
+        "key": "•",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 436
+        }
+      },
+      {
+        "comment": "",
+        "key": "•",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 445
+        }
+      },
+      {
+        "comment": "",
+        "key": "Old",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 449
+        }
+      },
+      {
+        "comment": "",
+        "key": "•",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 459
+        }
+      },
+      {
+        "comment": "",
+        "key": "Large",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 463
+        }
+      },
+      {
+        "comment": "",
+        "key": "Extension",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 432
+        }
+      },
+      {
+        "comment": "",
+        "key": "Compress %@",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 689
+        }
+      },
+      {
+        "comment": "",
+        "key": "Operation failed",
+        "location": {
+          "startingColumn": 16,
+          "startingLine": 706
+        }
+      },
+      {
+        "comment": "",
+        "key": "File Properties",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 604
+        }
+      },
+      {
+        "comment": "",
+        "key": "Quick Actions",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 634
+        }
+      },
+      {
+        "comment": "",
+        "key": "Compress (keep original)",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 690
+        }
+      },
+      {
+        "comment": "",
+        "key": "Compress & Replace (delete original)",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 696
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 702
+        }
+      },
+      {
+        "comment": "",
+        "key": "Choose how you want to compress this file.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 704
+        }
+      },
+      {
+        "comment": "",
+        "key": "OK",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 707
+        }
+      },
+      {
+        "comment": "",
+        "key": "Performs this quick action.",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 800
+        }
+      },
+      {
+        "comment": "",
+        "key": "Large Files",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 920
+        }
+      },
+      {
+        "comment": "",
+        "key": "Operation failed",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 926
+        }
+      },
+      {
+        "comment": "",
+        "key": "•",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 848
+        }
+      },
+      {
+        "comment": "",
+        "key": "•",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 856
+        }
+      },
+      {
+        "comment": "",
+        "key": "•",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 865
+        }
+      },
+      {
+        "comment": "",
+        "key": "Reveal in Finder",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 883
+        }
+      },
+      {
+        "comment": "",
+        "key": "Compress (keep original)",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 886
+        }
+      },
+      {
+        "comment": "",
+        "key": "Compress & Replace (delete original)",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 892
+        }
+      },
+      {
+        "comment": "",
+        "key": "Move to Trash",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 899
+        }
+      },
+      {
+        "comment": "",
+        "key": "Large Files",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 913
+        }
+      },
+      {
+        "comment": "",
+        "key": "Threshold: %lld MB. ZIP compression may not significantly reduce already-compressed media like videos.",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 915
+        }
+      },
+      {
+        "comment": "",
+        "key": "Done",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 923
+        }
+      },
+      {
+        "comment": "",
+        "key": "OK",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 927
+        }
+      }
+    ]
+  },
+  "version": 1
+}

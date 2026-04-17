@@ -43,6 +43,18 @@ NeatOS is a native macOS application built with SwiftUI that helps you organize,
 | **Size Analysis** | Flags files larger than 500MB for compression |
 | **Screenshot Detection** | Special handling for screenshot-named files |
 
+### 🪟 Results Browser (Split View)
+
+- **Master–detail layout** — Browse categorized files on the left, inspect details on the right
+- **Sorting controls** — Sort by Size, Extension, or Format (ascending/descending)
+- **Quick Look preview** — Rich file preview pane (images, PDFs, documents, etc.)
+- **Large files review** — Banner + review sheet for \(≥ 500MB\) files
+
+### 🔐 Sandbox-Friendly Folder Access
+
+- **Permission prompts when needed** — Desktop / Downloads / Documents access via user selection
+- **Persistent access** — Security-scoped bookmarks stored for future scans
+
 ### 🧹 Intelligent Cleanup Actions
 
 - **Move** — Organize files into category folders
@@ -110,6 +122,8 @@ NeatOS is a native macOS application built with SwiftUI that helps you organize,
 - **Smart Tidy** — Downloads auto-sort with configurable rules
 - **Vision-based similarity** — Image similarity detection via `VNGenerateImageFeaturePrintRequest`
 - **NeatOS menu** — Dedicated menu with keyboard shortcuts
+- **Results improvements** — Split-view browser, sorting, and file preview pane
+- **Sandboxed scanning** — Security-scoped access + persisted folder bookmarks
 - **Memory Guard** — RAM monitoring module (available for future integration)
 
 ### Version Info
@@ -161,32 +175,36 @@ NeatOS is a native macOS application built with SwiftUI that helps you organize,
 
 ```
 Pepe Assiant/
-├── Pepe_AssiantApp.swift       # App entry point, NeatOS menu
-├── ContentView.swift            # Root view
-├── ResultsView.swift            # Scan results display
-├── Pepe_Assiant.entitlements   # Sandbox entitlements
-│
-├── Views/
-│   ├── BotAssistantView.swift  # Main chat interface
-│   ├── ActionPreviewView.swift # Action preview sheet
-│   └── ContentView.swift
-│
-├── File Engine/
-│   ├── FileManager.swift       # Models, categories, rules
-│   ├── FileScanner.swift       # Scanning & analysis
-│   └── FileOperations.swift    # Move, archive, delete, compress
-│
-├── Utilities/
-│   ├── Constants.swift         # Strings, paths, config
-│   └── AppTheme.swift          # Colors, gradients
-│
-├── Xcode Cleaner/
-│   └── XcodeCleaner.swift      # Derived Data cleanup
-│
-├── Memory Guard/
-│   └── MemoryGuard.swift       # RAM monitoring (future)
-│
-└── Assets.xcassets             # App icon, accent color
+└── Pepe Assiant/
+    ├── Pepe_AssiantApp.swift       # App entry point, NeatOS menu
+    ├── ContentView.swift            # Root view
+    ├── ResultsView.swift            # Scan results (split view + preview)
+    ├── Pepe_Assiant.entitlements   # Sandbox entitlements
+    │
+    ├── Views/
+    │   ├── BotAssistantView.swift   # Main chat interface
+    │   ├── ActionPreviewView.swift  # Action preview sheet
+    │   ├── FileSortBar.swift        # Sorting controls
+    │   ├── QuickLookPreview.swift   # Quick Look preview pane
+    │   └── ContentView.swift
+    │
+    ├── File Engine/
+    │   ├── FileManager.swift            # Models, categories, rules
+    │   ├── FileScanner.swift            # Scanning & analysis
+    │   ├── FileOperations.swift         # Move, archive, delete, compress
+    │   └── FolderAccessController.swift # Security-scoped folder access
+    │
+    ├── Utilities/
+    │   ├── Constants.swift         # Strings, paths, config
+    │   └── AppTheme.swift          # Colors, gradients
+    │
+    ├── Xcode Cleaner/
+    │   └── XcodeCleaner.swift      # Derived Data cleanup
+    │
+    ├── Memory Guard/
+    │   └── MemoryGuard.swift       # RAM monitoring (future)
+    │
+    └── Assets.xcassets             # App icon, accent color
 ```
 
 ### Technologies
@@ -195,6 +213,7 @@ Pepe Assiant/
 - **AppKit** — NSOpenPanel, NSWorkspace, NSImage
 - **CryptoKit** — SHA256 for duplicate detection
 - **Vision** — Image similarity
+- **QuickLookUI / PDFKit** — File previews in Results
 - **Foundation** — FileManager, URL, DateFormatter
 
 ### Building

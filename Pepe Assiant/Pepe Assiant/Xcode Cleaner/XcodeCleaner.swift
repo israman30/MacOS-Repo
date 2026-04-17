@@ -104,7 +104,9 @@ final class XcodeCleaner: ObservableObject {
     private func directorySize(url: URL) async -> Int64 {
         guard let enumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: [.fileSizeKey], options: [.skipsHiddenFiles]) else { return 0 }
         var total: Int64 = 0
-        for case let fileURL as URL in enumerator {
+        // Use `nextObject()` instead of `Sequence` iteration to avoid Swift 6 async-context
+        // restrictions around `makeIterator` on ObjC-backed enumerators.
+        while let fileURL = enumerator.nextObject() as? URL {
             if let size = try? fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize {
                 total += Int64(size)
             }

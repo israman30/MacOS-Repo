@@ -1,11 +1,15 @@
 import SwiftUI
+import AppKit
 
 struct ResultsView: View {
     let scanResults: ScanResults
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var fileOperations: FileOperations
     @State private var selectedCategory: FileCategory?
-    @State private var showingFileDetail = false
-    @State private var selectedFile: FileInfo?
+    @State private var selectedFileID: UUID?
+    @State private var sortField: FileSortField = .size
+    @State private var sortDirection: FileSortDirection = .descending
+    @State private var showingLargeFiles = false
     
     var body: some View {
         NavigationView {
@@ -13,15 +17,28 @@ struct ResultsView: View {
                 // Summary Cards
                 summaryCards
                 
+                // Large Files Banner
+                largeFilesBanner
+                
                 // Category Tabs
                 categoryTabs
                 
                 // Content Area
                 contentArea
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationTitle(UIText.scanResults)
 //            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                    }
+                    .accessibilityLabel("Close")
+                    .help("Close")
+                }
                 ToolbarItem(placement: .primaryAction) {
                     Button(UIText.done) {
                         dismiss()
@@ -29,9 +46,24 @@ struct ResultsView: View {
                 }
             }
         }
-        .sheet(isPresented: $showingFileDetail) {
-            if let file = selectedFile {
-                FileDetailView(file: file)
+        .sheet(isPresented: $showingLargeFiles) {
+            LargeFilesView(files: scanResults.largeFiles)
+                .environmentObject(fileOperations)
+        }
+        .onChange(of: sortField) { _, _ in
+            if let category = selectedCategory {
+                let files = scanResults.filesByCategory[category] ?? []
+                if selectedFileID == nil {
+                    selectedFileID = files.sorted(by: sortField, direction: sortDirection).first?.id
+                }
+            }
+        }
+        .onChange(of: sortDirection) { _, _ in
+            if let category = selectedCategory {
+                let files = scanResults.filesByCategory[category] ?? []
+                if selectedFileID == nil {
+                    selectedFileID = files.sorted(by: sortField, direction: sortDirection).first?.id
+                }
             }
         }
     }
@@ -89,6 +121,47 @@ struct ResultsView: View {
         .accessibilityLabel("Summary")
     }
     
+    // MARK: - Large Files Banner
+    private var largeFilesBanner: some View {
+        Group {
+            if !scanResults.largeFiles.isEmpty {
+                HStack(spacing: 10) {
+                    Image(systemName: SystemIcons.arrowUpCircleFill)
+                        .foregroundColor(.purple)
+                        .accessibilityHidden(true)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Large files detected")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                        Text("\(scanResults.largeFiles.count) file(s) ≥ \(LargeFileRules.thresholdMB) MB")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Button("Review") {
+                        showingLargeFiles = true
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.purple)
+                    .controlSize(.small)
+                    .accessibilityLabel("Review large files")
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 10)
+                .background(Color.purple.opacity(0.08))
+                .overlay(
+                    Rectangle()
+                        .fill(AppTheme.borderLight)
+                        .frame(height: 1),
+                    alignment: .bottom
+                )
+            }
+        }
+    }
+    
     // MARK: - Category Tabs
     private var categoryTabs: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -100,6 +173,8 @@ struct ResultsView: View {
                         isSelected: selectedCategory == category
                     ) {
                         selectedCategory = category
+                        let files = scanResults.filesByCategory[category] ?? []
+                        selectedFileID = files.sorted(by: sortField, direction: sortDirection).first?.id
                     }
                 }
             }
@@ -112,6 +187,10 @@ struct ResultsView: View {
             if selectedCategory == nil {
                 selectedCategory = FileCategory.allCases.first { scanResults.filesByCategory[$0]?.isEmpty == false }
             }
+            if let category = selectedCategory {
+                let files = scanResults.filesByCategory[category] ?? []
+                selectedFileID = files.sorted(by: sortField, direction: sortDirection).first?.id
+            }
         }
     }
     
@@ -121,18 +200,36 @@ struct ResultsView: View {
             if let category = selectedCategory,
                let files = scanResults.filesByCategory[category],
                !files.isEmpty {
-                FileListView(
-                    files: files,
-                    category: category,
-                    onFileSelected: { file in
-                        selectedFile = file
-                        showingFileDetail = true
+                HSplitView {
+                    FileListView(
+                        files: files,
+                        category: category,
+                        sortField: $sortField,
+                        sortDirection: $sortDirection,
+                        selectedFileID: $selectedFileID
+                    )
+                    .frame(minWidth: 460, idealWidth: 560, maxWidth: .infinity, maxHeight: .infinity)
+                    
+                    Divider()
+                    
+                    Group {
+                        if let id = selectedFileID,
+                           let file = files.first(where: { $0.id == id }) {
+                            FileDetailPanel(file: file)
+                                .environmentObject(fileOperations)
+                        } else {
+                            emptyDetailView
+                        }
                     }
-                )
+                    .frame(minWidth: 420, idealWidth: 520, maxWidth: .infinity, maxHeight: .infinity)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .layoutPriority(1)
             } else {
                 emptyStateView
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
     
     // MARK: - Empty State View
@@ -156,6 +253,27 @@ struct ResultsView: View {
         .background(AppTheme.surface)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("No files found. Select a different category or scan a different location.")
+    }
+    
+    private var emptyDetailView: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "sidebar.right")
+                .font(.system(size: 34))
+                .foregroundColor(.secondary)
+                .accessibilityHidden(true)
+            
+            Text("Select a file")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            
+            Text("Its details will appear here.")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(AppTheme.surface)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Select a file to view details.")
     }
 }
 
@@ -246,23 +364,39 @@ struct CategoryTab: View {
 struct FileListView: View {
     let files: [FileInfo]
     let category: FileCategory
-    let onFileSelected: (FileInfo) -> Void
+    @Binding var sortField: FileSortField
+    @Binding var sortDirection: FileSortDirection
+    @Binding var selectedFileID: UUID?
     
     var body: some View {
-        List {
-            ForEach(files.sorted { $0.modificationDate > $1.modificationDate }) { file in
-                FileRowView(file: file) {
-                    onFileSelected(file)
+        VStack(spacing: 10) {
+            FileSortBar(field: $sortField, direction: $sortDirection)
+                .padding(.horizontal)
+                .padding(.top, 10)
+            
+            List(selection: $selectedFileID) {
+                ForEach(files.sorted(by: sortField, direction: sortDirection)) { file in
+                    FileRowView(
+                        file: file,
+                        isSelected: selectedFileID == file.id
+                    ) {
+                        selectedFileID = file.id
+                    }
+                    .tag(file.id)
                 }
             }
+            .listStyle(PlainListStyle())
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .layoutPriority(1)
         }
-        .listStyle(PlainListStyle())
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 }
 
 // MARK: - File Row View
 struct FileRowView: View {
     let file: FileInfo
+    let isSelected: Bool
     let onTap: () -> Void
     
     var body: some View {
@@ -285,6 +419,19 @@ struct FileRowView: View {
                     Text(file.formattedSize)
                         .font(.caption)
                         .foregroundColor(.secondary)
+                    
+                    if !file.extension.isEmpty {
+                        Text(file.extension.uppercased())
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(AppTheme.borderLight.opacity(0.18))
+                            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                            .accessibilityLabel("Extension")
+                            .accessibilityValue(file.extension)
+                    }
                     
                     Text("•")
                         .font(.caption)
@@ -333,10 +480,13 @@ struct FileRowView: View {
                 .accessibilityHidden(true)
         }
         .padding(.vertical, 4)
+        .padding(.horizontal, 6)
         .contentShape(Rectangle())
         .onTapGesture {
             onTap()
         }
+        .background(isSelected ? AppTheme.primary.opacity(0.12) : Color.clear)
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(file.name)
         .accessibilityValue(accessibilityValue)
@@ -382,36 +532,36 @@ struct FileRowView: View {
     }
 }
 
-// MARK: - File Detail View
-struct FileDetailView: View {
+// MARK: - File Detail Panel (Right side)
+struct FileDetailPanel: View {
     let file: FileInfo
-    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var fileOperations: FileOperations
+    @State private var showingCompressionOptions = false
+    @State private var operationError: String?
     
     var body: some View {
-        NavigationView {
+        VStack(spacing: 0) {
+            FilePreviewPane(url: file.url)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(AppTheme.surface)
+            
+            Rectangle()
+                .fill(AppTheme.borderLight)
+                .frame(height: 1)
+            
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    // File Header
                     fileHeader
-                    
-                    // File Properties
                     fileProperties
-                    
-                    // Quick Actions
                     quickActions
                 }
                 .padding()
             }
-            .navigationTitle("File Details")
-//            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .automatic) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 320)
+            .background(AppTheme.surface)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
     
     // MARK: - File Header
@@ -470,11 +620,12 @@ struct FileDetailView: View {
     }
 
     private var fileTypeValue: String {
-        let ext = file.url.pathExtension.trimmingCharacters(in: .whitespacesAndNewlines)
+        let ext = file.extension.trimmingCharacters(in: .whitespacesAndNewlines)
         if ext.isEmpty {
             return file.category.rawValue
         }
-        return ext.uppercased()
+        let kind = file.formatDisplayName
+        return "\(kind) (.\(ext.lowercased()))"
     }
     
     // MARK: - Quick Actions
@@ -485,6 +636,14 @@ struct FileDetailView: View {
                 .fontWeight(.semibold)
             
             VStack(spacing: 8) {
+                QuickActionButton(
+                    title: "Reveal in Finder",
+                    icon: "magnifyingglass",
+                    color: .teal
+                ) {
+                    NSWorkspace.shared.activateFileViewerSelecting([file.url])
+                }
+                
                 QuickActionButton(
                     title: "Move to Organized Folder",
                     icon: "folder",
@@ -509,7 +668,7 @@ struct FileDetailView: View {
                         icon: "zip",
                         color: .purple
                     ) {
-                        // Implement compress action
+                        showingCompressionOptions = true
                     }
                 }
                 
@@ -518,9 +677,36 @@ struct FileDetailView: View {
                     icon: "trash",
                     color: .red
                 ) {
-                    // Implement delete action
+                    Task {
+                        let ok = await fileOperations.moveToTrash(file)
+                        if !ok {
+                            operationError = "Could not move the file to Trash."
+                        }
+                    }
                 }
             }
+        }
+        .confirmationDialog("Compress \(file.name)", isPresented: $showingCompressionOptions, titleVisibility: .visible) {
+            Button("Compress (keep original)") {
+                Task {
+                    let ok = await fileOperations.compressKeepingOriginal(file)
+                    if !ok { operationError = "Could not compress the file." }
+                }
+            }
+            Button("Compress & Replace (delete original)", role: .destructive) {
+                Task {
+                    let ok = await fileOperations.compressAndReplace(file)
+                    if !ok { operationError = "Could not compress the file." }
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Choose how you want to compress this file.")
+        }
+        .alert("Operation failed", isPresented: Binding(get: { operationError != nil }, set: { if !$0 { operationError = nil } })) {
+            Button("OK", role: .cancel) { operationError = nil }
+        } message: {
+            Text(operationError ?? "Unknown error")
         }
     }
     
@@ -614,3 +800,153 @@ struct QuickActionButton: View {
         .accessibilityHint("Performs this quick action.")
     }
 } 
+
+// MARK: - Large Files View
+struct LargeFilesView: View {
+    let files: [FileInfo]
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var fileOperations: FileOperations
+    
+    @State private var operationError: String?
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 0) {
+                if fileOperations.isProcessing {
+                    VStack(spacing: 8) {
+                        ProgressView(value: fileOperations.processingProgress)
+                            .progressViewStyle(.linear)
+                            .tint(.purple)
+                        Text(fileOperations.currentOperation)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
+                    .background(AppTheme.surfaceElevated)
+                }
+                
+                List {
+                    Section {
+                        ForEach(files.sorted { $0.size > $1.size }) { file in
+                            HStack(spacing: 12) {
+                                Image(systemName: icon(for: file))
+                                    .foregroundColor(.purple)
+                                    .frame(width: 24)
+                                    .accessibilityHidden(true)
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(file.name)
+                                        .font(.subheadline)
+                                        .fontWeight(.medium)
+                                        .lineLimit(1)
+                                    
+                                    HStack(spacing: 8) {
+                                        Text(file.formattedSize)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                        
+                                        Text("•")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                        
+                                        Text(file.largeFileTypeSingularLabel)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                        
+                                        Text("•")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                        
+                                        Text(file.formatDisplayName)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                        
+                                        if !file.extension.isEmpty {
+                                            Text("•")
+                                                .font(.caption)
+                                                .foregroundColor(.secondary)
+                                            Text(file.extension.uppercased())
+                                                .font(.caption2)
+                                                .fontWeight(.semibold)
+                                                .foregroundColor(.secondary)
+                                                .padding(.horizontal, 6)
+                                                .padding(.vertical, 2)
+                                                .background(AppTheme.borderLight.opacity(0.18))
+                                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                        }
+                                    }
+                                }
+                                
+                                Spacer()
+                                
+                                Menu {
+                                    Button("Reveal in Finder") {
+                                        NSWorkspace.shared.activateFileViewerSelecting([file.url])
+                                    }
+                                    Button("Compress (keep original)") {
+                                        Task {
+                                            let ok = await fileOperations.compressKeepingOriginal(file)
+                                            if !ok { operationError = "Could not compress the file." }
+                                        }
+                                    }
+                                    Button("Compress & Replace (delete original)", role: .destructive) {
+                                        Task {
+                                            let ok = await fileOperations.compressAndReplace(file)
+                                            if !ok { operationError = "Could not compress the file." }
+                                        }
+                                    }
+                                    Divider()
+                                    Button("Move to Trash", role: .destructive) {
+                                        Task {
+                                            let ok = await fileOperations.moveToTrash(file)
+                                            if !ok { operationError = "Could not move the file to Trash." }
+                                        }
+                                    }
+                                } label: {
+                                    Image(systemName: "ellipsis.circle")
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    } header: {
+                        Text("Large Files")
+                    } footer: {
+                        Text("Threshold: \(LargeFileRules.thresholdMB) MB. ZIP compression may not significantly reduce already-compressed media like videos.")
+                    }
+                }
+                .listStyle(.inset)
+            }
+            .navigationTitle("Large Files")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+            .alert("Operation failed", isPresented: Binding(get: { operationError != nil }, set: { if !$0 { operationError = nil } })) {
+                Button("OK", role: .cancel) { operationError = nil }
+            } message: {
+                Text(operationError ?? "Unknown error")
+            }
+        }
+        .frame(minWidth: 760, idealWidth: 920, maxWidth: .infinity,
+               minHeight: 620, idealHeight: 740, maxHeight: .infinity)
+    }
+    
+    private func icon(for file: FileInfo) -> String {
+        switch file.largeFileKind {
+        case .photos:
+            return "photo"
+        case .videos:
+            return "video"
+        case .audio:
+            return "music.note"
+        case .books, .documents:
+            return "doc.text"
+        case .archives:
+            return "archivebox"
+        case .other:
+            return "doc"
+        }
+    }
+}

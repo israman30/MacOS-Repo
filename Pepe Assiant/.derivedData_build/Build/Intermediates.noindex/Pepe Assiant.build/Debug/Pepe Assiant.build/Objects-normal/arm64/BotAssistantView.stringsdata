@@ -1,0 +1,152 @@
+{
+  "source": "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/Pepe Assiant/Views/BotAssistantView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%@. %@",
+        "location": {
+          "startingColumn": 33,
+          "startingLine": 127
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ (%lld)",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 139
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 147
+        }
+      },
+      {
+        "comment": "",
+        "key": "Reverts the most recent file operation.",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 148
+        }
+      },
+      {
+        "comment": "",
+        "key": "Conversation",
+        "location": {
+          "startingColumn": 33,
+          "startingLine": 186
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld%% %@",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 222
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld%% %@",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 252
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ %@...",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 202
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tip: Press ⌘⏎ to send",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 307
+        }
+      },
+      {
+        "comment": "",
+        "key": "Quick actions",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 272
+        }
+      },
+      {
+        "comment": "",
+        "key": "Quick actions",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 263
+        }
+      },
+      {
+        "comment": "",
+        "key": "• Busy",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 267
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sends your message.",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 301
+        }
+      },
+      {
+        "comment": "",
+        "key": "Type your message to the assistant.",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 388
+        }
+      },
+      {
+        "comment": "",
+        "key": "Clear message",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 380
+        }
+      },
+      {
+        "comment": "",
+        "key": "Status",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 608
+        }
+      },
+      {
+        "comment": "",
+        "key": "You",
+        "location": {
+          "startingColumn": 33,
+          "startingLine": 657
+        }
+      },
+      {
+        "comment": "",
+        "key": "Assistant",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 677
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -48,6 +48,57 @@ class FileOperations: ObservableObject {
         return successCount == totalActions
     }
     
+    // MARK: - Single-File Helpers (UI actions)
+    func moveToTrash(_ file: FileInfo) async -> Bool {
+        await performSingleOperation("Moving to Trash: \(file.name)") {
+            await self.deleteFile(file)
+        }
+    }
+    
+    /// Creates a `.zip` next to the file and keeps the original.
+    func compressKeepingOriginal(_ file: FileInfo) async -> Bool {
+        await performSingleOperation("Compressing: \(file.name)") {
+            await self.compressFileKeepingOriginal(file)
+        }
+    }
+    
+    /// Compresses to the destination folder and deletes the original file (space-saving).
+    /// `to:` defaults to an empty string to preserve the Swift "default argument" symbol
+    /// that Xcode may still reference during incremental builds.
+    func compressAndReplace(_ file: FileInfo, to destination: String = "") async -> Bool {
+        await performSingleOperation("Compressing: \(file.name)") {
+            let finalDestination: String
+            if destination.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                finalDestination = file.url
+                    .deletingLastPathComponent()
+                    .appendingPathComponent("NeatOS Compressed")
+                    .path
+            } else {
+                finalDestination = destination
+            }
+            
+            return await self.compressFile(file, to: finalDestination)
+        }
+    }
+    
+    private func performSingleOperation(_ operationName: String, operation: @escaping () async -> Bool) async -> Bool {
+        await MainActor.run {
+            isProcessing = true
+            processingProgress = 0.0
+            currentOperation = operationName
+        }
+        
+        let success = await operation()
+        
+        await MainActor.run {
+            isProcessing = false
+            processingProgress = 1.0
+            currentOperation = ""
+        }
+        
+        return success
+    }
+    
     // MARK: - Execute Single Action
     private func executeAction(_ action: CleanupAction) async -> Bool {
         switch action.action {
@@ -102,19 +153,10 @@ class FileOperations: ObservableObject {
             
             let archiveName = String(format: FileNamingPatterns.archiveNamePattern, file.name, formatDate(file.modificationDate))
             let archivePath = archiveURL.appendingPathComponent(archiveName)
+            let finalPath = await resolveFilenameConflict(archivePath)
             
-            // Create a temporary directory for the file
-            let tempDir = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-            try fileManager.createDirectory(at: tempDir, withIntermediateDirectories: true)
-            
-            let tempFile = tempDir.appendingPathComponent(file.name)
-            try fileManager.copyItem(at: file.url, to: tempFile)
-            
-            // Create zip archive
-            let success = await createZipArchive(from: tempDir, to: archivePath)
-            
-            // Clean up temp directory
-            try? fileManager.removeItem(at: tempDir)
+            // Create zip archive (single-file)
+            let success = await createZipArchive(from: file.url, to: finalPath)
             
             if success {
                 // Delete original file
@@ -122,8 +164,8 @@ class FileOperations: ObservableObject {
                 
                 // Add to undo stack
                 let undoAction = UndoAction(
-                    originalURL: file.url,
-                    newURL: archivePath,
+                    originalURL: finalPath,
+                    newURL: file.url,
                     action: ActionTypes.archive,
                     timestamp: Date()
                 )
@@ -185,8 +227,8 @@ class FileOperations: ObservableObject {
                 
                 // Add to undo stack
                 let undoAction = UndoAction(
-                    originalURL: file.url,
-                    newURL: finalPath,
+                    originalURL: finalPath,
+                    newURL: file.url,
                     action: ActionTypes.compress,
                     timestamp: Date()
                 )
@@ -202,27 +244,44 @@ class FileOperations: ObservableObject {
         }
     }
     
+    private func compressFileKeepingOriginal(_ file: FileInfo) async -> Bool {
+        let folder = file.url.deletingLastPathComponent()
+        let compressedName = String(format: FileNamingPatterns.compressedNamePattern, file.name)
+        let target = folder.appendingPathComponent(compressedName)
+        let finalTarget = await resolveFilenameConflict(target)
+        
+        let success = await createZipArchive(from: file.url, to: finalTarget)
+        guard success else { return false }
+        
+        // Undo should remove the generated zip (original stays untouched).
+        let undoAction = UndoAction(
+            originalURL: finalTarget,
+            newURL: file.url,
+            action: ActionTypes.compressCopy,
+            timestamp: Date()
+        )
+        undoStack.append(undoAction)
+        
+        return true
+    }
+    
     // MARK: - Create Zip Archive
     private func createZipArchive(from source: URL, to destination: URL) async -> Bool {
-        // This is a simplified implementation
-        // In a real app, you'd use a proper compression library
         do {
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: SystemPaths.zipExecutable)
+            process.currentDirectoryURL = source.deletingLastPathComponent()
+            
             if source.hasDirectoryPath {
                 // Archive a directory
-                let process = Process()
-                process.executableURL = URL(fileURLWithPath: SystemPaths.zipExecutable)
-                process.arguments = ["-r", destination.path, source.path]
-                
+                process.arguments = ["-r", destination.path, source.lastPathComponent]
                 try process.run()
                 process.waitUntilExit()
                 
                 return process.terminationStatus == 0
             } else {
                 // Archive a single file
-                let process = Process()
-                process.executableURL = URL(fileURLWithPath: SystemPaths.zipExecutable)
-                process.arguments = [destination.path, source.path]
-                
+                process.arguments = [destination.path, source.lastPathComponent]
                 try process.run()
                 process.waitUntilExit()
                 
@@ -280,6 +339,8 @@ class FileOperations: ObservableObject {
                 try fileManager.moveItem(at: lastAction.originalURL, to: lastAction.newURL)
             case ActionTypes.compress:
                 try await extractAndRestore(from: lastAction.originalURL, to: lastAction.newURL)
+            case ActionTypes.compressCopy:
+                try fileManager.removeItem(at: lastAction.originalURL)
             default:
                 return false
             }
@@ -305,15 +366,37 @@ class FileOperations: ObservableObject {
         process.waitUntilExit()
         
         if process.terminationStatus == 0 {
-            // Find the extracted file
-            let contents = try fileManager.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
-            if let extractedFile = contents.first {
-                try fileManager.moveItem(at: extractedFile, to: originalURL)
+            // Find the extracted file (zip may contain a folder wrapper)
+            if let extracted = try findFirstRegularFileOrFolder(in: tempDir) {
+                try fileManager.createDirectory(at: originalURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+                if fileManager.fileExists(atPath: originalURL.path) {
+                    try fileManager.removeItem(at: originalURL)
+                }
+                try fileManager.moveItem(at: extracted, to: originalURL)
+                // Remove the archive after successful undo (restores pre-action state)
+                try? fileManager.removeItem(at: archiveURL)
             }
         }
         
         // Clean up temp directory
         try? fileManager.removeItem(at: tempDir)
+    }
+    
+    private func findFirstRegularFileOrFolder(in directory: URL) throws -> URL? {
+        let contents = try fileManager.contentsOfDirectory(at: directory, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles])
+        for item in contents {
+            let values = try item.resourceValues(forKeys: [.isDirectoryKey])
+            if values.isDirectory == true {
+                // If it's a directory, prefer a file inside it; otherwise return the folder.
+                if let inner = try findFirstRegularFileOrFolder(in: item) {
+                    return inner
+                }
+                return item
+            } else {
+                return item
+            }
+        }
+        return nil
     }
     
     // MARK: - Get Undo Stack Count

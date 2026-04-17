@@ -1,0 +1,16 @@
+{
+  "source": "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/Pepe Assiant/Views/QuickLookPreview.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Run the app for full Quick Look preview.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 100
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,192 @@
+{
+  "source": "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/Pepe Assiant/ResultsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Summary",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 91
+        }
+      },
+      {
+        "comment": "",
+        "key": "Categories",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 112
+        }
+      },
+      {
+        "comment": "",
+        "key": "No files found. Select a different category or scan a different location.",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 162
+        }
+      },
+      {
+        "comment": "",
+        "key": "No files found",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 150
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select a different category or scan a different location",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 154
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@: %@",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 207
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ category with %lld files",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 242
+        }
+      },
+      {
+        "comment": "",
+        "key": "Selected",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 244
+        }
+      },
+      {
+        "comment": "",
+        "key": "Not selected",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 244
+        }
+      },
+      {
+        "comment": "",
+        "key": "Shows files in the %@ category.",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 245
+        }
+      },
+      {
+        "comment": "",
+        "key": "(%lld)",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 230
+        }
+      },
+      {
+        "comment": "",
+        "key": "Double tap to view file details",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 368
+        }
+      },
+      {
+        "comment": "",
+        "key": "•",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 314
+        }
+      },
+      {
+        "comment": "",
+        "key": "•",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 323
+        }
+      },
+      {
+        "comment": "",
+        "key": "Old",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 327
+        }
+      },
+      {
+        "comment": "",
+        "key": "•",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 337
+        }
+      },
+      {
+        "comment": "",
+        "key": "Large",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 341
+        }
+      },
+      {
+        "comment": "",
+        "key": "Extension",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 310
+        }
+      },
+      {
+        "comment": "",
+        "key": "File Details",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 430
+        }
+      },
+      {
+        "comment": "",
+        "key": "Done",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 434
+        }
+      },
+      {
+        "comment": "",
+        "key": "File Properties",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 479
+        }
+      },
+      {
+        "comment": "",
+        "key": "Quick Actions",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 508
+        }
+      },
+      {
+        "comment": "",
+        "key": "Performs this quick action.",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 639
+        }
+      }
+    ]
+  },
+  "version": 1
+}

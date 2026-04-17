@@ -24,13 +24,19 @@ struct ActionPreviewView: View {
             .navigationTitle(UIText.previewActions)
 //            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Button(UIText.cancel) {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
                         dismiss()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
                     }
+                    .accessibilityLabel("Close")
+                    .help("Close")
                 }
             }
         }
+        .frame(minWidth: 820, idealWidth: 980, maxWidth: .infinity,
+               minHeight: 640, idealHeight: 740, maxHeight: .infinity)
         .onAppear {
             updateSelectAllState()
         }
@@ -148,6 +154,8 @@ struct ActionPreviewView: View {
             }
         }
         .listStyle(PlainListStyle())
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .layoutPriority(1)
     }
     
     // MARK: - Bottom Actions
