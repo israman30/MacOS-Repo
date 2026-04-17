@@ -528,7 +528,7 @@ struct BotAssistantView: View {
                 if let bytes = freed, bytes > 0 {
                     addBotMessage(String(format: XcodeCleanerText.successMessage, xcodeCleaner.formattedBytes(bytes)), action: nil)
                 } else if xcodeCleaner.lastError != nil {
-                    addBotMessage(String(format: XcodeCleanerText.errorMessage, xcodeCleaner.lastError ?? "Unknown error"), action: nil)
+                    addBotMessage(String(format: XcodeCleanerText.errorMessage, xcodeCleaner.lastError?.message ?? "Unknown error"), action: nil)
                 }
                 // If nil and no error, user cancelled—no message needed
             }

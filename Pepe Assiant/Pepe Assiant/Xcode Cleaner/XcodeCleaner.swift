@@ -15,7 +15,7 @@ final class XcodeCleaner: ObservableObject {
     
     @Published var isClearing = false
     @Published var lastClearedBytes: Int64?
-    @Published var lastError: String?
+    @Published var lastError: AppError?
     
     private let fileManager = FileManager.default
     private let byteFormatter: ByteCountFormatter = {
@@ -61,7 +61,7 @@ final class XcodeCleaner: ObservableObject {
         
         // Security-scoped access for sandbox
         guard selectedURL.startAccessingSecurityScopedResource() else {
-            lastError = "Could not access the selected folder."
+            lastError = .permissionDenied(resource: "the selected folder")
             return nil
         }
         defer { selectedURL.stopAccessingSecurityScopedResource() }
@@ -76,7 +76,7 @@ final class XcodeCleaner: ObservableObject {
     }
     
     /// Deletes all contents of the given directory. Returns (bytes freed, error message).
-    private func deleteContents(of url: URL) async -> (Int64, String?) {
+    private func deleteContents(of url: URL) async -> (Int64, AppError?) {
         do {
             let contents = try fileManager.contentsOfDirectory(at: url, includingPropertiesForKeys: [.fileSizeKey, .isDirectoryKey], options: [.skipsHiddenFiles])
             var totalFreed: Int64 = 0
@@ -97,7 +97,7 @@ final class XcodeCleaner: ObservableObject {
             
             return (totalFreed, nil)
         } catch {
-            return (0, error.localizedDescription)
+            return (0, ErrorHandler.toAppError(error, title: "Could not clear Derived Data"))
         }
     }
     
