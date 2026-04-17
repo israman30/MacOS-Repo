@@ -73,6 +73,8 @@ struct UIText {
     static let tipToSend = "Tip: Press ⌘⏎ to send"
     static let clearMessage = "Clear message"
     static let type_your_message_to_the_assistant = "Type your message to the assistant."
+    
+    static let run_the_app_for_full_quick_look_preview = "Run the app for full Quick Look preview."
 }
 
 // MARK: - Bot Messages

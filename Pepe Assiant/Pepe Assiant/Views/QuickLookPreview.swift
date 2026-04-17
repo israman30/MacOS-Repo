@@ -36,6 +36,7 @@ private final class PreviewItem: NSObject, QLPreviewItem {
 /// Wrapper that is safe in Xcode Previews and still shows rich previews at runtime.
 struct FilePreviewPane: View {
     let url: URL
+    private let XCODE_RUNNING_FOR_PREVIEWS = "XCODE_RUNNING_FOR_PREVIEWS"
     
     var body: some View {
         if isRunningForPreviews {
@@ -46,7 +47,7 @@ struct FilePreviewPane: View {
     }
     
     private var isRunningForPreviews: Bool {
-        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+        ProcessInfo.processInfo.environment[XCODE_RUNNING_FOR_PREVIEWS] == "1"
     }
 }
 
@@ -81,8 +82,12 @@ private struct LightweightFilePreview: View {
     }
     
     private func isPDF(_ url: URL) -> Bool {
-        if url.pathExtension.lowercased() == "pdf" { return true }
-        if let type = UTType(filenameExtension: url.pathExtension), type.conforms(to: .pdf) { return true }
+        if url.pathExtension.lowercased() == "pdf" {
+            return true
+        }
+        if let type = UTType(filenameExtension: url.pathExtension), type.conforms(to: .pdf) {
+            return true
+        }
         return false
     }
     
@@ -97,7 +102,7 @@ private struct LightweightFilePreview: View {
                 .foregroundColor(.secondary)
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
-            Text("Run the app for full Quick Look preview.")
+            Text(UIText.run_the_app_for_full_quick_look_preview)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
         }
