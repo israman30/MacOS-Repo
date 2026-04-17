@@ -2,10 +2,9 @@ import SwiftUI
 import Foundation
 
 struct BotAssistantView: View {
-    @StateObject private var fileScanner = FileScanner()
-    @StateObject private var fileOperations = FileOperations()
-    @StateObject private var xcodeCleaner = XcodeCleaner()
-    @StateObject private var folderAccess = FolderAccessController()
+    
+    @StateObject private var appViewModel = AppViewModel()
+    
     @State private var scanResults: ScanResults?
     @State private var selectedActions: Set<UUID> = []
     @State private var showingActionPreview = false
@@ -18,7 +17,7 @@ struct BotAssistantView: View {
     private let fileManager = FileManager.default
     
     private var isBusy: Bool {
-        fileScanner.isScanning || fileOperations.isProcessing
+        appViewModel.fileScanner.isScanning || appViewModel.fileOperations.isProcessing
     }
     
     // MARK: - Chat Message
@@ -79,7 +78,7 @@ struct BotAssistantView: View {
             clearDerivedData()
         }
         .onReceive(NotificationCenter.default.publisher(for: .pepeUndo)) { _ in
-            Task { await fileOperations.undoLastAction() }
+            Task { await appViewModel.fileOperations.undoLastAction() }
         }
         .sheet(isPresented: $showingActionPreview) {
             ActionPreviewView(
@@ -100,7 +99,7 @@ struct BotAssistantView: View {
                 largeFiles: [],
                 suggestedActions: []
             ))
-            .environmentObject(fileOperations)
+            .environmentObject(appViewModel.fileOperations)
             .frame(minWidth: 980, idealWidth: 1120, maxWidth: .infinity,
                    minHeight: 680, idealHeight: 780, maxHeight: .infinity)
         }
@@ -136,21 +135,21 @@ struct BotAssistantView: View {
             
             if isBusy {
                 StatusPill(
-                    text: fileScanner.isScanning ? "\(UIText.scanning) \(fileScanner.currentScanLocation)..." : fileOperations.currentOperation
+                    text: appViewModel.fileScanner.isScanning ? "\(UIText.scanning) \(appViewModel.fileScanner.currentScanLocation)..." : appViewModel.fileOperations.currentOperation
                 )
                 .transition(.opacity)
             }
             
-            if fileOperations.canUndo {
-                Button("\(UIText.undo) (\(fileOperations.undoCount))") {
+            if appViewModel.fileOperations.canUndo {
+                Button("\(UIText.undo) (\(appViewModel.fileOperations.undoCount))") {
                     Task {
-                        await fileOperations.undoLastAction()
+                        await appViewModel.fileOperations.undoLastAction()
                     }
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
                 .accessibilityLabel(UIText.undo)
-                .accessibilityValue("\(fileOperations.undoCount)")
+                .accessibilityValue("\(appViewModel.fileOperations.undoCount)")
                 .accessibilityHint(UIText.reverts_the_most_recent_file_operation)
             }
         }
@@ -178,11 +177,11 @@ struct BotAssistantView: View {
                         .transition(.opacity.combined(with: .move(edge: .bottom)))
                     }
                     
-                    if fileScanner.isScanning {
+                    if appViewModel.fileScanner.isScanning {
                         scanningProgressView
                     }
                     
-                    if fileOperations.isProcessing {
+                    if appViewModel.fileOperations.isProcessing {
                         processingProgressView
                     }
                 }
@@ -201,8 +200,8 @@ struct BotAssistantView: View {
     // MARK: - Scanning Progress View
     private var scanningProgressView: some View {
         ScanningProgressCard(
-            locationName: fileScanner.currentScanLocation,
-            progress: fileScanner.scanProgress
+            locationName: appViewModel.fileScanner.currentScanLocation,
+            progress: appViewModel.fileScanner.scanProgress
         )
     }
     
@@ -213,12 +212,12 @@ struct BotAssistantView: View {
                 ProgressView()
                     .scaleEffect(0.8)
                     .accessibilityHidden(true)
-                Text(fileOperations.currentOperation)
+                Text(appViewModel.fileOperations.currentOperation)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
             
-            ProgressView(value: fileOperations.processingProgress)
+            ProgressView(value: appViewModel.fileOperations.processingProgress)
                 .progressViewStyle(LinearProgressViewStyle())
                 .tint(AppTheme.primary)
                 .frame(height: 6)
@@ -233,7 +232,7 @@ struct BotAssistantView: View {
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(UIText.processingProgress)
-        .accessibilityValue("\(Int(fileOperations.processingProgress * 100))% \(UIText.complete)")
+        .accessibilityValue("\(Int(appViewModel.fileOperations.processingProgress * 100))% \(UIText.complete)")
     }
     
     // MARK: - Input Area
@@ -451,7 +450,7 @@ struct BotAssistantView: View {
     // MARK: - Scan Known Folder (Sandbox Permission)
     @MainActor
     private func scanKnownFolder(_ folder: FolderAccessController.KnownFolder) async {
-        let folderURL = folderAccess.ensureAccess(to: folder)
+        let folderURL = appViewModel.folderAccess.ensureAccess(to: folder)
         guard let folderURL else {
             addBotMessage(String(format: BotMessages.folderAccessCancelledMessage, folder.displayName), action: nil)
             return
@@ -461,7 +460,7 @@ struct BotAssistantView: View {
     
     // MARK: - Scan Directory
     private func scanDirectory(_ directory: URL) async {
-        let results = await fileScanner.scanDirectories([directory])
+        let results = await appViewModel.fileScanner.scanDirectories([directory])
         
         await MainActor.run {
             scanResults = results
@@ -508,7 +507,7 @@ struct BotAssistantView: View {
         let actions = results.suggestedActions.filter { selectedActions.contains($0.id) }
         
         Task {
-            let success = await fileOperations.executeActions(actions)
+            let success = await appViewModel.fileOperations.executeActions(actions)
             
             await MainActor.run {
                 if success {
@@ -523,12 +522,12 @@ struct BotAssistantView: View {
     // MARK: - Clear Derived Data (Xcode Cleaner)
     private func clearDerivedData() {
         Task {
-            let freed = await xcodeCleaner.clearDerivedData()
+            let freed = await appViewModel.xcodeCleaner.clearDerivedData()
             await MainActor.run {
                 if let bytes = freed, bytes > 0 {
-                    addBotMessage(String(format: XcodeCleanerText.successMessage, xcodeCleaner.formattedBytes(bytes)), action: nil)
-                } else if xcodeCleaner.lastError != nil {
-                    addBotMessage(String(format: XcodeCleanerText.errorMessage, xcodeCleaner.lastError?.message ?? "Unknown error"), action: nil)
+                    addBotMessage(String(format: XcodeCleanerText.successMessage, appViewModel.xcodeCleaner.formattedBytes(bytes)), action: nil)
+                } else if appViewModel.xcodeCleaner.lastError != nil {
+                    addBotMessage(String(format: XcodeCleanerText.errorMessage, appViewModel.xcodeCleaner.lastError?.message ?? "Unknown error"), action: nil)
                 }
                 // If nil and no error, user cancelled—no message needed
             }
