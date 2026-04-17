@@ -537,7 +537,7 @@ struct FileDetailPanel: View {
     let file: FileInfo
     @EnvironmentObject private var fileOperations: FileOperations
     @State private var showingCompressionOptions = false
-    @State private var operationError: String?
+    @State private var operationError: AppError?
     
     var body: some View {
         VStack(spacing: 0) {
@@ -680,7 +680,7 @@ struct FileDetailPanel: View {
                     Task {
                         let ok = await fileOperations.moveToTrash(file)
                         if !ok {
-                            operationError = "Could not move the file to Trash."
+                            operationError = ErrorHandler.message("Could not move the file to Trash.", title: "Operation failed")
                         }
                     }
                 }
@@ -690,24 +690,20 @@ struct FileDetailPanel: View {
             Button("Compress (keep original)") {
                 Task {
                     let ok = await fileOperations.compressKeepingOriginal(file)
-                    if !ok { operationError = "Could not compress the file." }
+                    if !ok { operationError = ErrorHandler.message("Could not compress the file.", title: "Operation failed") }
                 }
             }
             Button("Compress & Replace (delete original)", role: .destructive) {
                 Task {
                     let ok = await fileOperations.compressAndReplace(file)
-                    if !ok { operationError = "Could not compress the file." }
+                    if !ok { operationError = ErrorHandler.message("Could not compress the file.", title: "Operation failed") }
                 }
             }
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("Choose how you want to compress this file.")
         }
-        .alert("Operation failed", isPresented: Binding(get: { operationError != nil }, set: { if !$0 { operationError = nil } })) {
-            Button("OK", role: .cancel) { operationError = nil }
-        } message: {
-            Text(operationError ?? "Unknown error")
-        }
+        .appErrorAlert($operationError)
     }
     
     private func iconForFile(_ file: FileInfo) -> String {
@@ -807,7 +803,7 @@ struct LargeFilesView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var fileOperations: FileOperations
     
-    @State private var operationError: String?
+    @State private var operationError: AppError?
     
     var body: some View {
         NavigationView {
@@ -886,20 +882,20 @@ struct LargeFilesView: View {
                                     Button("Compress (keep original)") {
                                         Task {
                                             let ok = await fileOperations.compressKeepingOriginal(file)
-                                            if !ok { operationError = "Could not compress the file." }
+                                            if !ok { operationError = ErrorHandler.message("Could not compress the file.", title: "Operation failed") }
                                         }
                                     }
                                     Button("Compress & Replace (delete original)", role: .destructive) {
                                         Task {
                                             let ok = await fileOperations.compressAndReplace(file)
-                                            if !ok { operationError = "Could not compress the file." }
+                                            if !ok { operationError = ErrorHandler.message("Could not compress the file.", title: "Operation failed") }
                                         }
                                     }
                                     Divider()
                                     Button("Move to Trash", role: .destructive) {
                                         Task {
                                             let ok = await fileOperations.moveToTrash(file)
-                                            if !ok { operationError = "Could not move the file to Trash." }
+                                            if !ok { operationError = ErrorHandler.message("Could not move the file to Trash.", title: "Operation failed") }
                                         }
                                     }
                                 } label: {
@@ -923,11 +919,7 @@ struct LargeFilesView: View {
                     Button("Done") { dismiss() }
                 }
             }
-            .alert("Operation failed", isPresented: Binding(get: { operationError != nil }, set: { if !$0 { operationError = nil } })) {
-                Button("OK", role: .cancel) { operationError = nil }
-            } message: {
-                Text(operationError ?? "Unknown error")
-            }
+            .appErrorAlert($operationError)
         }
         .frame(minWidth: 760, idealWidth: 920, maxWidth: .infinity,
                minHeight: 620, idealHeight: 740, maxHeight: .infinity)
