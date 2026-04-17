@@ -179,6 +179,8 @@ Pepe Assiant/
 ├── Pepe Assiant.xcodeproj
 └── Pepe Assiant/
     ├── Pepe_AssiantApp.swift        # App entry point, NeatOS menu + shortcuts
+    ├── AppViewModel/
+    │   └── AppViewModel.swift       # Composition root for core engines used by the UI
     ├── ResultsView.swift            # Scan results (split view + preview)
     ├── Pepe_Assiant.entitlements    # Sandbox entitlements
     │
@@ -220,6 +222,12 @@ Pepe Assiant/
 - **Vision** — Image similarity
 - **QuickLookUI / PDFKit** — File previews in Results
 - **Foundation** — FileManager, URL, DateFormatter
+
+### State Management
+
+- `BotAssistantView` owns a single `AppViewModel` instance (`@StateObject`) for the lifetime of the chat UI.
+- `AppViewModel` exposes the core “engine” objects (`FileScanner`, `FileOperations`, `XcodeCleaner`, `FolderAccessController`) used across views.
+- Long-running work uses `async/await`; UI-facing state (progress/busy flags) is published by the engines for SwiftUI to render.
 
 ### Building
 
