@@ -28,10 +28,10 @@ struct ActionPreviewView: View {
                     Button {
                         dismiss()
                     } label: {
-                        Image(systemName: "xmark.circle.fill")
+                        Image(systemName: ActionPreviewLabels.Icon.xmark_circle_fill)
                     }
-                    .accessibilityLabel("Close")
-                    .help("Close")
+                    .accessibilityLabel(UIText.close)
+                    .help(UIText.close)
                 }
             }
         }
@@ -44,8 +44,10 @@ struct ActionPreviewView: View {
             updateSelectAllState()
         }
         .alert(SmartTidyRules.confirmExecuteTitle, isPresented: $showingExecuteConfirmation) {
-            Button("Cancel", role: .cancel) { }
-            Button("Proceed") { performExecute() }
+            Button(ActionPreviewLabels.cancel, role: .cancel) { }
+            Button(ActionPreviewLabels.proceed) {
+                performExecute()
+            }
         } message: {
             Text(String(format: SmartTidyRules.confirmExecuteMessage, selectedActions.count))
         }
@@ -149,7 +151,7 @@ struct ActionPreviewView: View {
                     .foregroundColor(AppTheme.primaryDark)
                     .accessibilityLabel(selectAll ? UIText.deselectAll : UIText.selectAll)
                     .accessibilityValue("\(selectedActions.count) \(UIText.of) \(actions.count) \(UIText.actionsSelected)")
-                    .accessibilityHint("Selects or deselects all suggested actions.")
+                    .accessibilityHint(UIText.selects_or_deselects_all_suggested_actions)
                 }
             }
         }
@@ -169,7 +171,7 @@ struct ActionPreviewView: View {
                 }
                 .buttonStyle(.bordered)
                 .frame(maxWidth: .infinity)
-                .accessibilityHint("Closes the preview without making changes.")
+                .accessibilityHint(UIText.closes_the_preview_without_making_changes)
                 
                 Button("\(UIText.executeSelected) (\(selectedActions.count))") {
                     if SmartTidyRules.alwaysAskBeforeAction {
@@ -182,7 +184,7 @@ struct ActionPreviewView: View {
                 .tint(AppTheme.primary)
                 .frame(maxWidth: .infinity)
                 .disabled(selectedActions.isEmpty)
-                .accessibilityHint("Executes the selected cleanup actions.")
+                .accessibilityHint(UIText.executes_the_selected_cleanup_actions)
             }
             .padding()
         }

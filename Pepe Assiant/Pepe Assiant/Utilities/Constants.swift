@@ -61,6 +61,20 @@ struct UIText {
     static let complete = "complete"
     static let doubleTapToSelect = "Double tap to select this action"
     static let doubleTapToDeselect = "Double tap to deselect this action"
+    static let close = "Close"
+    static let selects_or_deselects_all_suggested_actions = "Selects or deselects all suggested actions."
+    static let closes_the_preview_without_making_changes = "Closes the preview without making changes."
+    static let executes_the_selected_cleanup_actions = "Executes the selected cleanup actions."
+    static let reverts_the_most_recent_file_operation = "Reverts the most recent file operation."
+    static let conversation = "Conversation"
+    static let quickActions = "Quick actions"
+    static let busy = "• Busy"
+    static let sendYourMessage = "Sends your message."
+    static let tipToSend = "Tip: Press ⌘⏎ to send"
+    static let clearMessage = "Clear message"
+    static let type_your_message_to_the_assistant = "Type your message to the assistant."
+    
+    static let run_the_app_for_full_quick_look_preview = "Run the app for full Quick Look preview."
 }
 
 // MARK: - Bot Messages
@@ -256,6 +270,13 @@ struct XcodeCleanerText {
     static let successMessage = "Derived Data cleared! Freed %@ of disk space."
     static let cancelMessage = "Clearing was cancelled."
     static let errorMessage = "Could not clear Derived Data: %@"
+    
+    static let path = "/Users/\(NSUserName())/Library/Developer/Xcode/DerivedData"
+    static let panelTitle = "Select Xcode Derived Data Folder"
+    
+    static func panelMessage(path: String) -> String {
+        "Select the DerivedData folder to clear. Usually at:\n\(path)\n\nThis will delete build caches and indexes. Xcode will rebuild them on next build."
+    }
 }
 
 // MARK: - Smart Tidy: Auto-Sort Downloads
@@ -308,4 +329,14 @@ struct SmartTidyRules {
     static let alwaysAskBeforeAction = true
     static let confirmExecuteTitle = "Confirm File Operations"
     static let confirmExecuteMessage = "You are about to perform %d file operation(s). Do you want to proceed?"
+}
+
+struct ActionPreviewLabels {
+    
+    static let cancel = "Cancel"
+    static let proceed = "Proceed"
+    
+    struct Icon {
+        static let xmark_circle_fill = "xmark.circle.fill"
+    }
 }

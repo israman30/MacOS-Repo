@@ -151,7 +151,7 @@ struct BotAssistantView: View {
                 .controlSize(.small)
                 .accessibilityLabel(UIText.undo)
                 .accessibilityValue("\(fileOperations.undoCount)")
-                .accessibilityHint("Reverts the most recent file operation.")
+                .accessibilityHint(UIText.reverts_the_most_recent_file_operation)
             }
         }
         .padding()
@@ -189,7 +189,7 @@ struct BotAssistantView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 14)
             }
-            .accessibilityLabel("Conversation")
+            .accessibilityLabel(UIText.conversation)
             .onChange(of: messages.count) { _, _ in
                 withAnimation(.easeOut(duration: 0.25)) {
                     proxy.scrollTo(messages.last?.id, anchor: .bottom)
@@ -244,16 +244,16 @@ struct BotAssistantView: View {
                     .padding(.top, 4)
             } label: {
                 HStack(spacing: 8) {
-                    Text("Quick actions")
+                    Text(UIText.quickActions)
                         .font(.caption)
                         .foregroundColor(.secondary)
                     if isBusy {
-                        Text("• Busy")
+                        Text(UIText.busy)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                 }
-                .accessibilityLabel("Quick actions")
+                .accessibilityLabel(UIText.quickActions)
             }
             .disabled(isBusy)
             
@@ -282,13 +282,13 @@ struct BotAssistantView: View {
                 .buttonStyle(.plain)
                 .disabled(!canSend)
                 .accessibilityLabel(UIText.sendMessage)
-                .accessibilityHint("Sends your message.")
-#if os(macOS)
+                .accessibilityHint(UIText.sendYourMessage)
+                #if os(macOS)
                 .keyboardShortcut(.return, modifiers: [.command])
-#endif
+                #endif
             }
             
-            Text("Tip: Press ⌘⏎ to send")
+            Text(UIText.tipToSend)
                 .font(.caption2)
                 .foregroundColor(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -361,7 +361,7 @@ struct BotAssistantView: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.trailing, 10)
-                .accessibilityLabel("Clear message")
+                .accessibilityLabel(UIText.clearMessage)
             }
         }
         .disabled(isBusy)
@@ -369,7 +369,7 @@ struct BotAssistantView: View {
             sendMessage()
         }
         .accessibilityLabel(UIText.messageInputField)
-        .accessibilityHint("Type your message to the assistant.")
+        .accessibilityHint(UIText.type_your_message_to_the_assistant)
     }
     
     // MARK: - Send Message
@@ -486,7 +486,9 @@ struct BotAssistantView: View {
                 .prefix(3)
             
             if !top.isEmpty {
-                message += "\n" + top.map { "• \($0.name) (\($0.formattedSize)) — \($0.largeFileTypeSingularLabel) (\($0.formatDisplayName))" }.joined(separator: "\n")
+                message += "\n" + top
+                    .map { "• \($0.name) (\($0.formattedSize)) — \($0.largeFileTypeSingularLabel) (\($0.formatDisplayName))" }
+                    .joined(separator: "\n")
             }
         }
         

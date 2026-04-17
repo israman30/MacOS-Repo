@@ -27,7 +27,7 @@ final class XcodeCleaner: ObservableObject {
     /// Standard Xcode Derived Data path (for display/guidance).
     /// Uses real user home so the path is correct even when app is sandboxed.
     static var derivedDataPath: String {
-        "/Users/\(NSUserName())/Library/Developer/Xcode/DerivedData"
+        XcodeCleanerText.path
     }
     
     /// Prompts user to select DerivedData folder, then clears its contents.
@@ -41,8 +41,8 @@ final class XcodeCleaner: ObservableObject {
         defer { isClearing = false }
         
         let panel = NSOpenPanel()
-        panel.title = "Select Xcode Derived Data Folder"
-        panel.message = "Select the DerivedData folder to clear. Usually at:\n\(Self.derivedDataPath)\n\nThis will delete build caches and indexes. Xcode will rebuild them on next build."
+        panel.title = XcodeCleanerText.panelTitle
+        panel.message = XcodeCleanerText.panelMessage(path: Self.derivedDataPath)
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
