@@ -1,5 +1,6 @@
 import SwiftUI
 import Foundation
+import AppKit
 
 struct BotAssistantView: View {
     
@@ -59,6 +60,19 @@ struct BotAssistantView: View {
             inputArea
         }
         .background(AppTheme.surface)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                HStack(spacing: 8) {
+                    Image(nsImage: NSApp.applicationIconImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 18, height: 18)
+                        .accessibilityHidden(true)
+                    Text(AppConstants.appName)
+                        .font(.headline)
+                }
+            }
+        }
         .onAppear {
             addWelcomeMessage()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {

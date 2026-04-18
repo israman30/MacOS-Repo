@@ -1,0 +1,80 @@
+{
+  "source": "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/Pepe Assiant/Views/BotAssistantView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%@. %@",
+        "location": {
+          "startingColumn": 33,
+          "startingLine": 134
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ (%lld)",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 146
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 154
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld%% %@",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 237
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld%% %@",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 601
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ %@...",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 575
+        }
+      },
+      {
+        "comment": "",
+        "key": "Status",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 679
+        }
+      },
+      {
+        "comment": "",
+        "key": "You",
+        "location": {
+          "startingColumn": 33,
+          "startingLine": 728
+        }
+      },
+      {
+        "comment": "",
+        "key": "Assistant",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 748
+        }
+      }
+    ]
+  },
+  "version": 1
+}

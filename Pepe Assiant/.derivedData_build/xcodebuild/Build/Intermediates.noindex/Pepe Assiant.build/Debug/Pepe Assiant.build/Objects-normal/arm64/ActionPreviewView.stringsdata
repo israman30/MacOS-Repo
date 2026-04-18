@@ -1,0 +1,80 @@
+{
+  "source": "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/Pepe Assiant/Views/ActionPreviewView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%lld %@ %lld %@",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 106
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld %@ %lld %@",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 87
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 41,
+          "startingLine": 133
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 123
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld %@ %lld %@",
+        "location": {
+          "startingColumn": 41,
+          "startingLine": 165
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ (%lld)",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 188
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@, %@, %@",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 332
+        }
+      },
+      {
+        "comment": "",
+        "key": "Double tap to %@",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 333
+        }
+      },
+      {
+        "comment": "",
+        "key": "•",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 301
+        }
+      }
+    ]
+  },
+  "version": 1
+}
