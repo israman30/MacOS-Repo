@@ -455,6 +455,12 @@ struct BotAssistantView: View {
             addBotMessage(String(format: BotMessages.folderAccessCancelledMessage, folder.displayName), action: nil)
             return
         }
+        
+        // Quick sanity check: even with a URL, sandbox access may still fail to enumerate.
+        if FileManager.default.enumerator(at: folderURL, includingPropertiesForKeys: nil) == nil {
+            addBotMessage("I couldn’t access your \(folder.displayName) folder for scanning. Please try again and make sure to select your \(folder.displayName) folder when prompted.", action: nil)
+            return
+        }
         await scanDirectory(folderURL)
     }
     
@@ -463,6 +469,10 @@ struct BotAssistantView: View {
         let results = await appViewModel.fileScanner.scanDirectories([directory])
         
         await MainActor.run {
+            if results.totalFiles == 0, let msg = appViewModel.fileScanner.lastScanErrorMessage {
+                addBotMessage(msg, action: nil)
+                return
+            }
             scanResults = results
             showScanResults(results, locationName: directory.lastPathComponent)
         }
@@ -565,11 +575,17 @@ struct ScanningProgressCard: View {
                     .foregroundColor(.secondary)
             }
             
-            ProgressView(value: progress)
-                .progressViewStyle(LinearProgressViewStyle())
-                .tint(AppTheme.primary)
-                .frame(height: 6)
-                .accessibilityHidden(true)
+            Group {
+                if progress > 0 {
+                    ProgressView(value: progress)
+                } else {
+                    ProgressView()
+                }
+            }
+            .progressViewStyle(LinearProgressViewStyle())
+            .tint(AppTheme.primary)
+            .frame(height: 6)
+            .accessibilityHidden(true)
         }
         .padding(16)
         .background(AppTheme.cardBackground)
