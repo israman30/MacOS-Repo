@@ -5,6 +5,7 @@
 //  Created by Israel Manzo on 6/28/25.
 //
 
+import AppKit
 import SwiftUI
 
 @main
@@ -21,6 +22,10 @@ struct Pepe_AssiantApp: App {
         .defaultSize(width: 1000, height: 700)
         .commands {
             CommandMenu("NeatOS") {
+                Button("About NeatOS") {
+                    AboutPanelPresenter.show()
+                }
+                Divider()
                 Button("Scan Desktop") {
                     NotificationCenter.default.post(name: .pepeScanDesktop, object: nil)
                 }
@@ -44,6 +49,15 @@ struct Pepe_AssiantApp: App {
                 }
                 .keyboardShortcut("z", modifiers: [.command, .shift])
             }
+        }
+    }
+}
+
+private enum AboutPanelPresenter {
+    static func show() {
+        DispatchQueue.main.async {
+            NSApp.activate(ignoringOtherApps: true)
+            NSApp.orderFrontStandardAboutPanel(options: [.applicationName: "NeatOS"])
         }
     }
 }
