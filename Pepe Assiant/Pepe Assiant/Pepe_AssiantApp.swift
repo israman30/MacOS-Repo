@@ -25,7 +25,7 @@ struct Pepe_AssiantApp: App {
                 Button("About NeatOS") {
                     AboutPanelPresenter.show()
                 }
-                Button("Welcome & Tutorial") {
+                Button("How to use") {
                     NotificationCenter.default.post(name: .pepeShowTutorial, object: nil)
                 }
                 .keyboardShortcut("t", modifiers: [.command, .shift])

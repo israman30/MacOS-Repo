@@ -1,0 +1,23 @@
+{
+  "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/Pepe Assiant/AppViewModel/AppViewModel.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppViewModel.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppViewModel.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppViewModel.dia",
+    "object" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppViewModel.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppViewModel.swiftdeps"
+  },
+  "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/Pepe Assiant/File Engine/FileManager.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FileManager.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FileManager.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FileManager.dia",
+    "object" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FileManager.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FileManager.swiftdeps"
+  },
+  "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/Pepe Assiant/File Engine/FileOperations.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FileOperations.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FileOperations.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FileOperations.dia",
+    "object" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FileOperations.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FileOperations.swiftdeps"
+  }
+}

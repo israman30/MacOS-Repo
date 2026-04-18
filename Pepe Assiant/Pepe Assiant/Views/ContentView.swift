@@ -9,13 +9,13 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage(AppStorageKeys.hasSeenOnboarding) private var hasSeenOnboarding = false
-    @State private var showingOnboarding = false
+    @State private var showingTutorial = false
 
     var body: some View {
         BotAssistantView()
-            .sheet(isPresented: $showingOnboarding) {
+            .sheet(isPresented: $showingTutorial) {
                 Group {
-                    OnboardingView(isPresented: $showingOnboarding) {
+                    OnboardingView(isPresented: $showingTutorial) {
                         hasSeenOnboarding = true
                     }
                 }
@@ -23,11 +23,11 @@ struct ContentView: View {
             }
             .onAppear {
                 if !hasSeenOnboarding {
-                    showingOnboarding = true
+                    showingTutorial = true
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: .pepeShowTutorial)) { _ in
-                showingOnboarding = true
+                showingTutorial = true
             }
     }
 }

@@ -1,0 +1,72 @@
+{
+  "source": "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/Pepe Assiant/Views/OnboardingView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Skip",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 52
+        }
+      },
+      {
+        "comment": "",
+        "key": "Get Started",
+        "location": {
+          "startingColumn": 60,
+          "startingLine": 55
+        }
+      },
+      {
+        "comment": "",
+        "key": "Next",
+        "location": {
+          "startingColumn": 76,
+          "startingLine": 55
+        }
+      },
+      {
+        "comment": "",
+        "key": "Back",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 86
+        }
+      },
+      {
+        "comment": "",
+        "key": "Get Started",
+        "location": {
+          "startingColumn": 57,
+          "startingLine": 91
+        }
+      },
+      {
+        "comment": "",
+        "key": "Next",
+        "location": {
+          "startingColumn": 73,
+          "startingLine": 91
+        }
+      },
+      {
+        "comment": "",
+        "key": "Welcome to %@",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 129
+        }
+      },
+      {
+        "comment": "",
+        "key": "NeatOS helps you scan common folders, spot clutter (duplicates, old files, large files), and safely clean up with a review step and undo.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 133
+        }
+      }
+    ]
+  },
+  "version": 1
+}
