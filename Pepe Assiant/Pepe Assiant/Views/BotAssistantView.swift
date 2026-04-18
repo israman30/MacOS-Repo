@@ -2,10 +2,17 @@ import SwiftUI
 import Foundation
 import AppKit
 
+/// Primary "assistant" screen that ties together:
+/// - Chat UI (messages + input)
+/// - A lightweight intent router (keyword-based) that converts messages into actions
+/// - Scanning + cleanup workflows provided by `AppViewModel`
 struct BotAssistantView: View {
     
+    // Own the app-level services here so the assistant can orchestrate scanning/operations
+    // while keeping SwiftUI state updates on the right threads.
     @StateObject private var appViewModel = AppViewModel()
     
+    // Scan output is cached so other sheets (preview/results) can reuse the same data.
     @State private var scanResults: ScanResults?
     @State private var selectedActions: Set<UUID> = []
     @State private var showingActionPreview = false
@@ -18,6 +25,7 @@ struct BotAssistantView: View {
     private let fileManager = FileManager.default
     
     private var isBusy: Bool {
+        // Used throughout the UI to disable conflicting interactions while work is running.
         appViewModel.fileScanner.isScanning || appViewModel.fileOperations.isProcessing
     }
     
@@ -74,11 +82,14 @@ struct BotAssistantView: View {
             }
         }
         .onAppear {
+            // Seed the conversation and then focus the input for a "ready to type" feel.
             addWelcomeMessage()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                 isInputFocused = true
             }
         }
+        // These notifications allow menu items / shortcuts to trigger assistant actions
+        // without tightly coupling those UI entry points to this view's internals.
         .onReceive(NotificationCenter.default.publisher(for: .pepeScanDesktop)) { _ in
             addBotMessage(BotMessages.scanDesktopMessage, action: .scanDesktop)
         }
@@ -95,6 +106,7 @@ struct BotAssistantView: View {
             Task { await appViewModel.fileOperations.undoLastAction() }
         }
         .sheet(isPresented: $showingActionPreview) {
+            // Action preview is a "review before execute" step so bulk operations are explicit.
             ActionPreviewView(
                 actions: scanResults?.suggestedActions ?? [],
                 selectedActions: $selectedActions,
@@ -104,6 +116,8 @@ struct BotAssistantView: View {
                    minHeight: 640, idealHeight: 740, maxHeight: .infinity)
         }
         .sheet(isPresented: $showingResults) {
+            // Results are presented in a separate sheet so the assistant conversation can remain visible.
+            // A fallback empty `ScanResults` keeps the view resilient if the sheet opens mid-state change.
             ResultsView(scanResults: scanResults ?? ScanResults(
                 totalFiles: 0,
                 filesByCategory: [:],
@@ -148,6 +162,7 @@ struct BotAssistantView: View {
             Spacer()
             
             if isBusy {
+                // Single status pill communicates "something is happening" without flooding the chat.
                 StatusPill(
                     text: appViewModel.fileScanner.isScanning ? "\(UIText.scanning) \(appViewModel.fileScanner.currentScanLocation)..." : appViewModel.fileOperations.currentOperation
                 )
@@ -155,6 +170,7 @@ struct BotAssistantView: View {
             }
             
             if appViewModel.fileOperations.canUndo {
+                // Undo is surfaced prominently because many operations are destructive (trash/move).
                 Button("\(UIText.undo) (\(appViewModel.fileOperations.undoCount))") {
                     Task {
                         await appViewModel.fileOperations.undoLastAction()
@@ -204,6 +220,7 @@ struct BotAssistantView: View {
             }
             .accessibilityLabel(UIText.conversation)
             .onChange(of: messages.count) { _, _ in
+                // Keep the latest message visible as the conversation grows.
                 withAnimation(.easeOut(duration: 0.25)) {
                     proxy.scrollTo(messages.last?.id, anchor: .bottom)
                 }
@@ -297,6 +314,7 @@ struct BotAssistantView: View {
                 .accessibilityLabel(UIText.sendMessage)
                 .accessibilityHint(UIText.sendYourMessage)
                 #if os(macOS)
+                // Mirrors the common "send" shortcut used by chat apps on macOS.
                 .keyboardShortcut(.return, modifiers: [.command])
                 #endif
             }
@@ -391,6 +409,7 @@ struct BotAssistantView: View {
         let trimmedInput = userInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedInput.isEmpty else { return }
         
+        // Append immediately so the UI responds instantly; the bot response is handled asynchronously.
         let userMessage = ChatMessage(text: trimmedInput, isUser: true, timestamp: Date(), action: nil)
         messages.append(userMessage)
         userInput = ""
@@ -401,6 +420,8 @@ struct BotAssistantView: View {
     
     // MARK: - Process User Input
     private func processUserInput(_ input: String) {
+        // Simple intent routing: keep it predictable and fast, and rely on explicit
+        // follow-up questions when the user didn't specify a location.
         let lowercasedInput = input.lowercased()
         
         if lowercasedInput.contains(UserInputKeywords.clean) || lowercasedInput.contains(UserInputKeywords.organize) {
@@ -432,6 +453,8 @@ struct BotAssistantView: View {
         messages.append(botMessage)
         
         if let action = action {
+            // Auto-trigger actions with a slight delay so messages feel conversational
+            // (the action button is still visible and can be tapped immediately).
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 handleBotAction(action)
             }
@@ -450,6 +473,7 @@ struct BotAssistantView: View {
                 await scanKnownFolder(.documents)
             case .cleanAll:
                 if let results = scanResults {
+                    // Preselect everything for the review sheet; the user can opt out per-item.
                     selectedActions = Set(results.suggestedActions.map { $0.id })
                     showingActionPreview = true
                 }
@@ -464,6 +488,8 @@ struct BotAssistantView: View {
     // MARK: - Scan Known Folder (Sandbox Permission)
     @MainActor
     private func scanKnownFolder(_ folder: FolderAccessController.KnownFolder) async {
+        // Access to common folders is permission-gated on macOS sandboxed apps.
+        // `FolderAccessController` manages the user prompt + security-scoped bookmark handling.
         let folderURL = appViewModel.folderAccess.ensureAccess(to: folder)
         guard let folderURL else {
             addBotMessage(String(format: BotMessages.folderAccessCancelledMessage, folder.displayName), action: nil)
@@ -480,9 +506,11 @@ struct BotAssistantView: View {
     
     // MARK: - Scan Directory
     private func scanDirectory(_ directory: URL) async {
+        // Scanning work happens off the main thread; UI state updates are marshaled back to MainActor.
         let results = await appViewModel.fileScanner.scanDirectories([directory])
         
         await MainActor.run {
+            // If the scanner returns "empty" due to a failure, surface the last error message.
             if results.totalFiles == 0, let msg = appViewModel.fileScanner.lastScanErrorMessage {
                 addBotMessage(msg, action: nil)
                 return
@@ -494,6 +522,10 @@ struct BotAssistantView: View {
     
     // MARK: - Show Scan Results
     private func showScanResults(_ results: ScanResults, locationName: String) {
+        // Compose a single summary message:
+        // - high-level totals
+        // - optional large-file callout (top few examples)
+        // - suggested actions (if any)
         let fileCount = results.totalFiles
         let totalSize = results.formattedTotalSize
         let actionCount = results.suggestedActions.count
@@ -516,6 +548,7 @@ struct BotAssistantView: View {
         }
         
         if actionCount > 0 {
+            // When we have suggested actions, the bot offers a path into the results sheet.
             message += String(format: BotMessages.suggestActionsMessage, actionCount)
             addBotMessage(message, action: .showResults)
         } else {
@@ -528,6 +561,7 @@ struct BotAssistantView: View {
     private func executeSelectedActions() {
         guard let results = scanResults else { return }
         
+        // Only execute what the user selected in the preview sheet.
         let actions = results.suggestedActions.filter { selectedActions.contains($0.id) }
         
         Task {
@@ -546,6 +580,7 @@ struct BotAssistantView: View {
     // MARK: - Clear Derived Data (Xcode Cleaner)
     private func clearDerivedData() {
         Task {
+            // Clearing Derived Data can be expensive; `xcodeCleaner` returns the freed bytes when successful.
             let freed = await appViewModel.xcodeCleaner.clearDerivedData()
             await MainActor.run {
                 if let bytes = freed, bytes > 0 {
@@ -699,6 +734,7 @@ struct ChatBubbleView: View {
     let onAction: (BotAssistantView.ChatMessage.BotAction) -> Void
     
     private static let timeFormatter: DateFormatter = {
+        // Static formatter avoids recreating DateFormatter for every bubble render.
         let f = DateFormatter()
         f.dateStyle = .none
         f.timeStyle = .short
