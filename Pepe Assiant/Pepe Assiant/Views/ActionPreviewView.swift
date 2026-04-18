@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 struct ActionPreviewView: View {
     let actions: [CleanupAction]
@@ -24,6 +25,17 @@ struct ActionPreviewView: View {
             .navigationTitle(UIText.previewActions)
 //            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    HStack(spacing: 8) {
+                        Image(nsImage: NSApp.applicationIconImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 18, height: 18)
+                            .accessibilityHidden(true)
+                        Text(UIText.previewActions)
+                            .font(.headline)
+                    }
+                }
                 ToolbarItem(placement: .cancellationAction) {
                     Button {
                         dismiss()

@@ -1,10 +1,16 @@
 import SwiftUI
 import AppKit
 
+/// Presents a scan "report" as an interactive split view:
+/// - Top: high-level summary metrics + category navigation
+/// - Left: sortable file list for the selected category
+/// - Right: preview + details + quick actions for the selected file
 struct ResultsView: View {
     let scanResults: ScanResults
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var fileOperations: FileOperations
+    // Selection is modeled as (category + fileID) so the right panel can render
+    // independently and stay stable across sort changes.
     @State private var selectedCategory: FileCategory?
     @State private var selectedFileID: UUID?
     @State private var sortField: FileSortField = .size
@@ -30,6 +36,17 @@ struct ResultsView: View {
             .navigationTitle(UIText.scanResults)
 //            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    HStack(spacing: 8) {
+                        Image(nsImage: NSApp.applicationIconImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 18, height: 18)
+                            .accessibilityHidden(true)
+                        Text(UIText.scanResults)
+                            .font(.headline)
+                    }
+                }
                 ToolbarItem(placement: .cancellationAction) {
                     Button {
                         dismiss()
@@ -51,6 +68,8 @@ struct ResultsView: View {
                 .environmentObject(fileOperations)
         }
         .onChange(of: sortField) { _, _ in
+            // Keep the UI in a valid state if the user changes sorting before a file is selected.
+            // (If a selection already exists, we preserve it rather than "jumping" the detail panel.)
             if let category = selectedCategory {
                 let files = scanResults.filesByCategory[category] ?? []
                 if selectedFileID == nil {
@@ -59,6 +78,8 @@ struct ResultsView: View {
             }
         }
         .onChange(of: sortDirection) { _, _ in
+            // Same behavior as above: establish a sensible default selection for the detail panel
+            // after the sort direction changes, but only when nothing is selected yet.
             if let category = selectedCategory {
                 let files = scanResults.filesByCategory[category] ?? []
                 if selectedFileID == nil {
@@ -172,6 +193,8 @@ struct ResultsView: View {
                         fileCount: scanResults.filesByCategory[category]?.count ?? 0,
                         isSelected: selectedCategory == category
                     ) {
+                        // Switching categories updates the left list contents and seeds the right panel
+                        // with the "top" item according to the current sort settings.
                         selectedCategory = category
                         let files = scanResults.filesByCategory[category] ?? []
                         selectedFileID = files.sorted(by: sortField, direction: sortDirection).first?.id
@@ -184,6 +207,8 @@ struct ResultsView: View {
         .background(AppTheme.headerGradient)
         .accessibilityLabel("Categories")
         .onAppear {
+            // First-load behavior: default to the first non-empty category so the view
+            // doesn't land in an empty state when results exist.
             if selectedCategory == nil {
                 selectedCategory = FileCategory.allCases.first { scanResults.filesByCategory[$0]?.isEmpty == false }
             }
@@ -374,6 +399,8 @@ struct FileListView: View {
                 .padding(.horizontal)
                 .padding(.top, 10)
             
+            // The list owns the selection binding; rows can also set it explicitly on tap
+            // to keep selection behavior consistent across macOS list interaction styles.
             List(selection: $selectedFileID) {
                 ForEach(files.sorted(by: sortField, direction: sortDirection)) { file in
                     FileRowView(
@@ -494,6 +521,7 @@ struct FileRowView: View {
     }
 
     private var accessibilityValue: String {
+        // Build a concise, screen-reader-friendly summary without duplicating the visible UI verbatim.
         var parts: [String] = [
             file.formattedSize,
             "modified \(formatDate(file.modificationDate))"
@@ -541,6 +569,8 @@ struct FileDetailPanel: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            // Preview is kept visually separate from actions so the user can inspect the file
+            // before choosing a potentially destructive operation.
             FilePreviewPane(url: file.url)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(AppTheme.surface)
@@ -641,6 +671,7 @@ struct FileDetailPanel: View {
                     icon: "magnifyingglass",
                     color: .teal
                 ) {
+                    // Uses the system file viewer rather than opening the file directly.
                     NSWorkspace.shared.activateFileViewerSelecting([file.url])
                 }
                 
@@ -678,6 +709,7 @@ struct FileDetailPanel: View {
                     color: .red
                 ) {
                     Task {
+                        // File operations run asynchronously; failures are surfaced via a single alert.
                         let ok = await fileOperations.moveToTrash(file)
                         if !ok {
                             operationError = ErrorHandler.message("Could not move the file to Trash.", title: "Operation failed")
@@ -687,6 +719,8 @@ struct FileDetailPanel: View {
             }
         }
         .confirmationDialog("Compress \(file.name)", isPresented: $showingCompressionOptions, titleVisibility: .visible) {
+            // Compression variants are presented as a confirmation dialog because one option
+            // replaces the original file (destructive) and should be clearly distinguished.
             Button("Compress (keep original)") {
                 Task {
                     let ok = await fileOperations.compressKeepingOriginal(file)
@@ -809,6 +843,8 @@ struct LargeFilesView: View {
         NavigationView {
             VStack(spacing: 0) {
                 if fileOperations.isProcessing {
+                    // Reuse the shared processing state so compression/trash actions feel consistent
+                    // with the rest of the app (and remain undoable where supported).
                     VStack(spacing: 8) {
                         ProgressView(value: fileOperations.processingProgress)
                             .progressViewStyle(.linear)
@@ -823,6 +859,7 @@ struct LargeFilesView: View {
                 
                 List {
                     Section {
+                        // Sort largest-first so the most impactful candidates are visible immediately.
                         ForEach(files.sorted { $0.size > $1.size }) { file in
                             HStack(spacing: 12) {
                                 Image(systemName: icon(for: file))

@@ -1,0 +1,56 @@
+{
+  "source": "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/Pepe Assiant/Views/FileSortBar.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Sort files",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 57
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sort by",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 64
+        }
+      },
+      {
+        "comment": "",
+        "key": "Choose how to sort this list.",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 71
+        }
+      },
+      {
+        "comment": "",
+        "key": "Ascending order",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 82
+        }
+      },
+      {
+        "comment": "",
+        "key": "Descending order",
+        "location": {
+          "startingColumn": 69,
+          "startingLine": 82
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sort direction",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 83
+        }
+      }
+    ]
+  },
+  "version": 1
+}

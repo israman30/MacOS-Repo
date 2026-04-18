@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 // MARK: - File Types and Categories
-enum FileCategory: String, CaseIterable {
+enum FileCategory: String, CaseIterable, Sendable {
     case images = "Images"
     case documents = "Documents"
     case videos = "Videos"
@@ -48,7 +48,7 @@ enum FileCategory: String, CaseIterable {
 }
 
 // MARK: - File Information Model
-struct FileInfo: Identifiable, Hashable {
+struct FileInfo: Identifiable, Hashable, Sendable {
     let id = UUID()
     let url: URL
     let name: String
@@ -151,7 +151,7 @@ struct SortingRule: Identifiable {
 }
 
 // MARK: - Cleanup Action
-struct CleanupAction: Identifiable {
+struct CleanupAction: Identifiable, Sendable {
     let id = UUID()
     let file: FileInfo
     let action: ActionType
@@ -177,7 +177,7 @@ struct CleanupAction: Identifiable {
 }
 
 // MARK: - Scan Results
-struct ScanResults {
+struct ScanResults: Sendable {
     let totalFiles: Int
     let filesByCategory: [FileCategory: [FileInfo]]
     let duplicates: [String: [FileInfo]]
