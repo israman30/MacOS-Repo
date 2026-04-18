@@ -21,6 +21,8 @@ struct BotAssistantView: View {
     @State private var messages: [ChatMessage] = []
     @State private var showQuickActions = true
     @FocusState private var isInputFocused: Bool
+
+    @AppStorage(AppStorageKeys.hasSeenOnboarding) private var hasSeenOnboarding = false
     
     private let fileManager = FileManager.default
     
@@ -79,11 +81,14 @@ struct BotAssistantView: View {
                     Text(AppConstants.appName)
                         .font(.headline)
                 }
+                .padding(.horizontal, 12)
             }
         }
         .onAppear {
             // Seed the conversation and then focus the input for a "ready to type" feel.
-            addWelcomeMessage()
+            if messages.isEmpty {
+                addWelcomeMessage()
+            }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                 isInputFocused = true
             }
@@ -595,8 +600,14 @@ struct BotAssistantView: View {
     
     // MARK: - Add Welcome Message
     private func addWelcomeMessage() {
+        let text: String
+        if hasSeenOnboarding {
+            text = "Welcome back! Use the Quick Actions below, or ask me to scan Desktop, Downloads, or Documents."
+        } else {
+            text = "Welcome to \(AppConstants.appName)! Start with a Quick Action below, or type something like “clean my desktop”. I’ll ask for folder permission the first time you scan."
+        }
         let welcomeMessage = ChatMessage(
-            text: AppConstants.appTagline,
+            text: text,
             isUser: false,
             timestamp: Date(),
             action: nil

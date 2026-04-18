@@ -46,6 +46,7 @@ struct ResultsView: View {
                         Text(UIText.scanResults)
                             .font(.headline)
                     }
+                    .padding(.horizontal, 12)
                 }
                 ToolbarItem(placement: .cancellationAction) {
                     Button {

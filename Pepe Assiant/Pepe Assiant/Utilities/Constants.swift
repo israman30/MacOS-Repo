@@ -15,6 +15,11 @@ struct AppConstants {
     static let appTagline = "Hi! I'm NeatOS, your file organization assistant. I can help you clean up your desktop, organize downloads, find duplicates, and archive old files. Just tell me what you'd like to do!"
 }
 
+// MARK: - AppStorage Keys
+struct AppStorageKeys {
+    static let hasSeenOnboarding = "NeatOS.hasSeenOnboarding"
+}
+
 // MARK: - UI Text
 struct UIText {
     // Navigation
@@ -321,6 +326,7 @@ extension Notification.Name {
     static let pepeScanDocuments = Notification.Name("Pepe.scanDocuments")
     static let pepeClearDerivedData = Notification.Name("Pepe.clearDerivedData")
     static let pepeUndo = Notification.Name("Pepe.undo")
+    static let pepeShowTutorial = Notification.Name("Pepe.showTutorial")
 }
 
 // MARK: - Smart Tidy: User Confirmation
