@@ -1,6 +1,15 @@
 import Foundation
 import SwiftUI
 
+protocol FileOperationsProtocol {
+    func executeActions(_ actions: [CleanupAction]) async -> Bool
+    func moveToTrash(_ file: FileInfo) async -> Bool
+    func compressKeepingOriginal(_ file: FileInfo) async -> Bool
+    func undoLastAction() async -> Bool
+}
+
+extension FileOperations: FileOperationsProtocol { }
+
 class FileOperations: ObservableObject {
     @Published var isProcessing = false
     @Published var processingProgress: Double = 0.0
