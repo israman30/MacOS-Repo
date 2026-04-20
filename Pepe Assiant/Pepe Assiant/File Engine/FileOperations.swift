@@ -17,6 +17,7 @@ class FileOperations: ObservableObject {
     
     private let fileManager = FileManager.default
     private var undoStack: [UndoAction] = []
+    private let allowedRootsPolicy = AllowedRootsPolicy()
     
     // MARK: - Undo Action
     struct UndoAction {
@@ -55,6 +56,12 @@ class FileOperations: ObservableObject {
         }
         
         return successCount == totalActions
+    }
+    
+    /// Sets the allowed filesystem roots for all destructive operations.
+    /// Call this immediately after a user grants folder access.
+    func setAllowedRoots(_ roots: [URL]) async {
+        await allowedRootsPolicy.setAllowedRoots(roots)
     }
     
     // MARK: - Single-File Helpers (UI actions)
@@ -125,8 +132,10 @@ class FileOperations: ObservableObject {
     // MARK: - Move File
     private func moveFile(_ file: FileInfo, to destination: String, directDestination: Bool = false) async -> Bool {
         do {
+            try await allowedRootsPolicy.validateFileIsWithinAllowedRoots(file.url)
             let destinationURL = expandPath(destination)
             let destinationFolder = directDestination ? destinationURL : destinationURL.appendingPathComponent(file.category.rawValue)
+            try await allowedRootsPolicy.validateDestinationIsWithinAllowedRoots(destinationFolder)
             
             // Create destination folder if it doesn't exist
             try fileManager.createDirectory(at: destinationFolder, withIntermediateDirectories: true)
@@ -149,7 +158,7 @@ class FileOperations: ObservableObject {
             
             return true
         } catch {
-            print(String(format: ErrorMessages.errorMovingFile, error.localizedDescription))
+            AppLog.fileOps.error("Move failed.")
             return false
         }
     }
@@ -157,7 +166,9 @@ class FileOperations: ObservableObject {
     // MARK: - Archive File
     private func archiveFile(_ file: FileInfo, to destination: String) async -> Bool {
         do {
+            try await allowedRootsPolicy.validateFileIsWithinAllowedRoots(file.url)
             let archiveURL = expandPath(destination)
+            try await allowedRootsPolicy.validateDestinationIsWithinAllowedRoots(archiveURL)
             try fileManager.createDirectory(at: archiveURL, withIntermediateDirectories: true)
             
             let archiveName = String(format: FileNamingPatterns.archiveNamePattern, file.name, formatDate(file.modificationDate))
@@ -185,7 +196,7 @@ class FileOperations: ObservableObject {
             
             return false
         } catch {
-            print(String(format: ErrorMessages.errorArchivingFile, error.localizedDescription))
+            AppLog.fileOps.error("Archive failed.")
             return false
         }
     }
@@ -193,6 +204,7 @@ class FileOperations: ObservableObject {
     // MARK: - Delete File
     private func deleteFile(_ file: FileInfo) async -> Bool {
         do {
+            try await allowedRootsPolicy.validateFileIsWithinAllowedRoots(file.url)
             // Move to trash instead of permanent deletion
             let trashURL = try fileManager.url(for: .trashDirectory, in: .userDomainMask, appropriateFor: file.url, create: false)
             let trashFile = trashURL.appendingPathComponent(file.name)
@@ -211,7 +223,7 @@ class FileOperations: ObservableObject {
             
             return true
         } catch {
-            print(String(format: ErrorMessages.errorDeletingFile, error.localizedDescription))
+            AppLog.fileOps.error("Delete failed.")
             return false
         }
     }
@@ -219,7 +231,9 @@ class FileOperations: ObservableObject {
     // MARK: - Compress File
     private func compressFile(_ file: FileInfo, to destination: String) async -> Bool {
         do {
+            try await allowedRootsPolicy.validateFileIsWithinAllowedRoots(file.url)
             let compressURL = expandPath(destination)
+            try await allowedRootsPolicy.validateDestinationIsWithinAllowedRoots(compressURL)
             try fileManager.createDirectory(at: compressURL, withIntermediateDirectories: true)
             
             let compressedName = String(format: FileNamingPatterns.compressedNamePattern, file.name)
@@ -248,12 +262,18 @@ class FileOperations: ObservableObject {
             
             return false
         } catch {
-            print(String(format: ErrorMessages.errorCompressingFile, error.localizedDescription))
+            AppLog.fileOps.error("Compress failed.")
             return false
         }
     }
     
     private func compressFileKeepingOriginal(_ file: FileInfo) async -> Bool {
+        do {
+            try await allowedRootsPolicy.validateFileIsWithinAllowedRoots(file.url)
+        } catch {
+            AppLog.fileOps.error("Compress-copy validation failed.")
+            return false
+        }
         let folder = file.url.deletingLastPathComponent()
         let compressedName = String(format: FileNamingPatterns.compressedNamePattern, file.name)
         let target = folder.appendingPathComponent(compressedName)
@@ -283,21 +303,21 @@ class FileOperations: ObservableObject {
             
             if source.hasDirectoryPath {
                 // Archive a directory
-                process.arguments = ["-r", destination.path, source.lastPathComponent]
+                process.arguments = ["-r", destination.path, "--", source.lastPathComponent]
                 try process.run()
                 process.waitUntilExit()
                 
                 return process.terminationStatus == 0
             } else {
                 // Archive a single file
-                process.arguments = [destination.path, source.lastPathComponent]
+                process.arguments = [destination.path, "--", source.lastPathComponent]
                 try process.run()
                 process.waitUntilExit()
                 
                 return process.terminationStatus == 0
             }
         } catch {
-            print(String(format: ErrorMessages.errorCreatingZipArchive, error.localizedDescription))
+            AppLog.fileOps.error("Zip creation failed.")
             return false
         }
     }
@@ -340,13 +360,17 @@ class FileOperations: ObservableObject {
         do {
             switch lastAction.action {
             case ActionTypes.move:
+                try await allowedRootsPolicy.validateDestinationIsWithinAllowedRoots(lastAction.newURL.deletingLastPathComponent())
                 try fileManager.moveItem(at: lastAction.originalURL, to: lastAction.newURL)
             case ActionTypes.archive:
                 // Extract from archive and restore
+                try await allowedRootsPolicy.validateDestinationIsWithinAllowedRoots(lastAction.newURL.deletingLastPathComponent())
                 try await extractAndRestore(from: lastAction.originalURL, to: lastAction.newURL)
             case ActionTypes.delete:
+                try await allowedRootsPolicy.validateDestinationIsWithinAllowedRoots(lastAction.newURL.deletingLastPathComponent())
                 try fileManager.moveItem(at: lastAction.originalURL, to: lastAction.newURL)
             case ActionTypes.compress:
+                try await allowedRootsPolicy.validateDestinationIsWithinAllowedRoots(lastAction.newURL.deletingLastPathComponent())
                 try await extractAndRestore(from: lastAction.originalURL, to: lastAction.newURL)
             case ActionTypes.compressCopy:
                 try fileManager.removeItem(at: lastAction.originalURL)
@@ -356,7 +380,7 @@ class FileOperations: ObservableObject {
             
             return true
         } catch {
-            print(String(format: ErrorMessages.errorUndoingAction, error.localizedDescription))
+            AppLog.fileOps.error("Undo failed.")
             return false
         }
     }
@@ -369,7 +393,7 @@ class FileOperations: ObservableObject {
         // Extract archive
         let process = Process()
         process.executableURL = URL(fileURLWithPath: SystemPaths.unzipExecutable)
-        process.arguments = [archiveURL.path, "-d", tempDir.path]
+        process.arguments = ["-d", tempDir.path, "--", archiveURL.path]
         
         try process.run()
         process.waitUntilExit()

@@ -1,0 +1,23 @@
+{
+  "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/Pepe Assiant/Utilities/AppError.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppError.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppError.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppError.dia",
+    "object" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppError.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppError.swiftdeps"
+  },
+  "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/Pepe Assiant/Utilities/AppLog.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppLog.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppLog.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppLog.dia",
+    "object" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppLog.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppLog.swiftdeps"
+  },
+  "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/Pepe Assiant/Utilities/AppTheme.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppTheme.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppTheme.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppTheme.dia",
+    "object" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppTheme.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/AppTheme.swiftdeps"
+  }
+}

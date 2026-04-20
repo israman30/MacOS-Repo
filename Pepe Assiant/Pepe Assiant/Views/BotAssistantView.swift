@@ -500,6 +500,9 @@ struct BotAssistantView: View {
             addBotMessage(String(format: BotMessages.folderAccessCancelledMessage, folder.displayName), action: nil)
             return
         }
+
+        // Lock file operations to only the user-approved roots.
+        await appViewModel.fileOperations.setAllowedRoots(appViewModel.folderAccess.currentAccessibleRoots)
         
         // Quick sanity check: even with a URL, sandbox access may still fail to enumerate.
         if FileManager.default.enumerator(at: folderURL, includingPropertiesForKeys: nil) == nil {

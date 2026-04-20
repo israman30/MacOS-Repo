@@ -1,0 +1,23 @@
+{
+  "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/Pepe Assiant/File Engine/FileScanner.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FileScanner.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FileScanner.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FileScanner.dia",
+    "object" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FileScanner.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FileScanner.swiftdeps"
+  },
+  "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/Pepe Assiant/File Engine/FolderAccessController.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FolderAccessController.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FolderAccessController.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FolderAccessController.dia",
+    "object" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FolderAccessController.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/FolderAccessController.swiftdeps"
+  },
+  "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/Pepe Assiant/Memory Guard/MemoryGuard.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/MemoryGuard.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/MemoryGuard.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/MemoryGuard.dia",
+    "object" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/MemoryGuard.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/MacOS-Repo/Pepe Assiant/.derivedData_cursor/xcodebuild/Build/Intermediates.noindex/Pepe Assiant.build/Debug/Pepe Assiant.build/Objects-normal/arm64/MemoryGuard.swiftdeps"
+  }
+}

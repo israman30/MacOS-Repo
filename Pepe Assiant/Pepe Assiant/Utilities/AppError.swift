@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 
 /// A single, app-wide error type you can use across services, view models, and views.
 enum AppError: Error, LocalizedError, Identifiable, Sendable, Equatable {
@@ -107,7 +108,7 @@ enum ErrorHandler {
     static func log(_ error: Error, title: String? = nil, context: String? = nil, file: String = #fileID, line: Int = #line, function: String = #function) -> AppError {
         let appError = toAppError(error, title: title, context: context)
         let details = (error as NSError)
-        print("[NeatOS][Error] \(file):\(line) \(function) — \(appError.title): \(appError.message) (\(details.domain) \(details.code))")
+        AppLog.security.error("Error. file=\(file, privacy: .public) line=\(line, privacy: .public) fn=\(function, privacy: .public) title=\(appError.title, privacy: .public) msg=\(appError.message, privacy: .private(mask: .hash)) domain=\(details.domain, privacy: .public) code=\(details.code, privacy: .public)")
         return appError
     }
 }

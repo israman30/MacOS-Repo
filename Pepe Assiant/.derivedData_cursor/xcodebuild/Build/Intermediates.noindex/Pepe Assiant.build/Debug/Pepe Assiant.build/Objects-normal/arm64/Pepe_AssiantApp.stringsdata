@@ -12,14 +12,6 @@
       },
       {
         "comment": "",
-        "key": "Tutorial",
-        "location": {
-          "startingColumn": 25,
-          "startingLine": 53
-        }
-      },
-      {
-        "comment": "",
         "key": "About NeatOS",
         "location": {
           "startingColumn": 24,
@@ -28,15 +20,15 @@
       },
       {
         "comment": "",
-        "key": "Scan Desktop",
+        "key": "How to use",
         "location": {
           "startingColumn": 24,
-          "startingLine": 29
+          "startingLine": 28
         }
       },
       {
         "comment": "",
-        "key": "Scan Downloads",
+        "key": "Scan Desktop",
         "location": {
           "startingColumn": 24,
           "startingLine": 33
@@ -44,7 +36,7 @@
       },
       {
         "comment": "",
-        "key": "Scan Documents",
+        "key": "Scan Downloads",
         "location": {
           "startingColumn": 24,
           "startingLine": 37
@@ -52,18 +44,18 @@
       },
       {
         "comment": "",
-        "key": "%@ Last Action",
+        "key": "Scan Documents",
         "location": {
           "startingColumn": 24,
-          "startingLine": 47
+          "startingLine": 41
         }
       },
       {
         "comment": "",
-        "key": "Welcome & Tutorial",
+        "key": "%@ Last Action",
         "location": {
           "startingColumn": 24,
-          "startingLine": 54
+          "startingLine": 51
         }
       }
     ]
