@@ -31,6 +31,7 @@ final class FolderAccessController: ObservableObject {
     
     private let fileManager = FileManager.default
     private let defaults: UserDefaults
+    private let keychain = KeychainStore()
     
     /// Active security-scoped URLs we are currently holding open.
     private var activeSecurityScopedURLs: [KnownFolder: URL] = [:]
@@ -56,6 +57,12 @@ final class FolderAccessController: ObservableObject {
         activeSecurityScopedURLs.removeAll()
     }
     
+    /// The set of folder roots currently held open via security-scoped access.
+    /// Use to enforce a least-privilege boundary for file operations.
+    var currentAccessibleRoots: [URL] {
+        Array(activeSecurityScopedURLs.values)
+    }
+    
     /// Returns a usable URL for the folder, requesting user permission if needed.
     /// If the user cancels the permission prompt, returns nil.
     func ensureAccess(to folder: KnownFolder) -> URL? {
@@ -65,8 +72,14 @@ final class FolderAccessController: ObservableObject {
         
         if let resolved = resolveBookmarkURL(for: folder) {
             if resolved.startAccessingSecurityScopedResource() {
-                activeSecurityScopedURLs[folder] = resolved
-                return resolved
+                // Hard boundary: never allow a broader folder than we asked for.
+                if validateSelection(resolved, for: folder) {
+                    activeSecurityScopedURLs[folder] = resolved
+                    return resolved
+                } else {
+                    resolved.stopAccessingSecurityScopedResource()
+                    deleteBookmark(for: folder)
+                }
             }
         }
         
@@ -79,6 +92,11 @@ final class FolderAccessController: ObservableObject {
             message: "NeatOS needs your permission to scan and organize files in your \(folder.displayName) folder.\n\nPlease select your \(folder.displayName) folder to allow access.",
             suggestedURL: suggested
         ) else {
+            return nil
+        }
+
+        guard validateSelection(userSelected, for: folder) else {
+            presentInvalidSelectionAlert(for: folder, expected: suggested)
             return nil
         }
         
@@ -120,17 +138,32 @@ final class FolderAccessController: ObservableObject {
                 includingResourceValuesForKeys: nil,
                 relativeTo: nil
             )
-            defaults.set(data, forKey: folder.bookmarkDefaultsKey)
+            try keychain.setData(data, forKey: folder.bookmarkDefaultsKey)
         } catch {
             // If we can't save the bookmark, we'll still work for this session.
-            print("Failed to save bookmark for \(folder.displayName): \(error.localizedDescription)")
+            AppLog.security.error("Failed to save folder bookmark. folder=\(folder.rawValue, privacy: .public)")
         }
     }
     
     private func resolveBookmarkURL(for folder: KnownFolder) -> URL? {
-        guard let data = defaults.data(forKey: folder.bookmarkDefaultsKey) else {
-            return nil
+        let data: Data?
+        do {
+            if let kc = try keychain.getData(forKey: folder.bookmarkDefaultsKey) {
+                data = kc
+            } else if let legacy = defaults.data(forKey: folder.bookmarkDefaultsKey) {
+                // Migrate legacy storage from UserDefaults → Keychain.
+                data = legacy
+                try? keychain.setData(legacy, forKey: folder.bookmarkDefaultsKey)
+                defaults.removeObject(forKey: folder.bookmarkDefaultsKey)
+            } else {
+                data = nil
+            }
+        } catch {
+            AppLog.security.error("Failed to read folder bookmark. folder=\(folder.rawValue, privacy: .public)")
+            data = nil
         }
+        
+        guard let data else { return nil }
         
         var stale = false
         do {
@@ -147,8 +180,43 @@ final class FolderAccessController: ObservableObject {
             
             return url
         } catch {
-            print("Failed to resolve bookmark for \(folder.displayName): \(error.localizedDescription)")
+            AppLog.security.error("Failed to resolve folder bookmark. folder=\(folder.rawValue, privacy: .public)")
             return nil
         }
+    }
+    
+    private func deleteBookmark(for folder: KnownFolder) {
+        defaults.removeObject(forKey: folder.bookmarkDefaultsKey)
+        try? keychain.delete(forKey: folder.bookmarkDefaultsKey)
+    }
+    
+    /// Ensures the selected folder does not grant more access than intended.
+    private func validateSelection(_ selected: URL, for folder: KnownFolder) -> Bool {
+        guard let expected = fileManager.urls(for: folder.searchPathDirectory, in: .userDomainMask).first else {
+            return false
+        }
+        let expectedCanonical = expected.canonicalFileURL
+        let selectedCanonical = selected.canonicalFileURL
+        
+        // Allow exact match (strongest). This avoids users accidentally selecting Home/iCloud Drive.
+        if selectedCanonical.path == expectedCanonical.path {
+            return true
+        }
+        
+        // Allow narrower selection (subfolder inside the expected folder).
+        if FileSecurity.isDescendant(selectedCanonical, ofRoot: expectedCanonical) {
+            return true
+        }
+        
+        return false
+    }
+    
+    private func presentInvalidSelectionAlert(for folder: KnownFolder, expected: URL) {
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = "Wrong folder selected"
+        alert.informativeText = "For security, NeatOS only accepts access to your \(folder.displayName) folder (or a subfolder inside it). Please try again and select “\(expected.lastPathComponent)”."
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
     }
 }
