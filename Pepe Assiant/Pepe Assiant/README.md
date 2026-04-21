@@ -7,9 +7,11 @@
 ## Table of Contents
 
 - [Overview](#overview)
+- [App Icon](#app-icon)
 - [Features](#features)
 - [Functionalities](#functionalities)
 - [Updates](#updates)
+- [Download](#download)
 - [How to Use](#how-to-use)
 - [Technical Architecture](#technical-architecture)
 - [Contributing](#contributing)
@@ -147,6 +149,22 @@ Then rebuild in Xcode.
 - **Xcode:** 16.4+
 - **Swift:** 5.0+
 - **Bundle ID:** `com.israman.somenews.Pepe-Assiant`
+
+---
+
+## Download
+
+### Gumroad (First Publish)
+
+NeatOS is now available on Gumroad—this is the **first published release** of the app. Download it here:
+
+- [NeatOS for macOS files organizer (Gumroad)](https://israelmanzo.gumroad.com/l/bgvnz)
+
+### Install (macOS)
+
+1. Download the build from Gumroad.
+2. Move **NeatOS.app** into your **Applications** folder.
+3. On first launch, if macOS blocks it, right-click **NeatOS.app** → **Open**.
 
 ---
 
